@@ -308,6 +308,7 @@ configmaps_fainvoicemanager = {
   MS_AGENZIA_ENTRATE_HOST                                = "cstariobackendtest"
   MS_AGENZIA_ENTRATE_URL                                 = "http://cstariobackendtest:8080"
   # the two rows below are ignored if MS_AGENZIA_ENTRATE_URL has already been set 
+  # they are used here: https://github.com/pagopa/fa-ms-invoice-manager/blob/release-dev/integration/rest/src/main/resources/config/agenzia_entrate/rest-client.properties
   MS_AGENZIA_ENTRATE_PORT   = ""
   MS_AGENZIA_ENTRATE_SCHEMA = "https"
 }
