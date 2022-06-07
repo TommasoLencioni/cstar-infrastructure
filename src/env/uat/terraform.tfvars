@@ -6,7 +6,7 @@ location_pair_short = "neu"
 
 apim_notification_sender_email = "info@pagopa.it"
 apim_publisher_name            = "PagoPA Centro Stella UAT"
-apim_sku                       = "Developer_1"
+apim_sku                       = "Premium_1"
 
 
 # https://www.davidc.net/sites/default/subnets/subnets.html?network=10.1.0.0&mask=16&division=33.df9ce3000
@@ -753,7 +753,8 @@ app_gateway_management_certificate_name = "management-uat-cstar-pagopa-it"
 enable_iac_pipeline = true
 
 cdc_api_params = {
-  host = "https://apitest.agenziaentrate.gov.it/interop/carta-cultura/"
+  # host = "https://apitest.agenziaentrate.gov.it/interop/carta-cultura/"
+  host = "https://api.sogei.it/interop/carta-cultura"
 }
 
 tags = {
