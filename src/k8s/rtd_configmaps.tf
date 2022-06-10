@@ -81,6 +81,19 @@ resource "kubernetes_config_map" "rtdingestor" {
   , ".") }
 }
 
+resource "kubernetes_config_map" "rtdfileregister" {
+  count = var.enable.rtd.file_register ? 1 : 0
+
+  metadata {
+    name      = "rtdfileregister"
+    namespace = kubernetes_namespace.rtd.metadata[0].name
+  }
+
+  data = {
+    JAVA_TOOL_OPTIONS = "-javaagent:/app/applicationinsights-agent.jar"
+    }
+}
+
 resource "kubernetes_config_map" "rtd-eventhub-common" {
   metadata {
     name      = "eventhub-common"
