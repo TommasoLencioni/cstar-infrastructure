@@ -105,5 +105,62 @@
         "type": "DatasetReference"
       }
     ]
-  }
+  },
+  {
+    "name": "wrongFiscalCodesToFile",
+    "type": "Copy",
+    "dependsOn": [
+        {
+            "activity": "ackToDatastore",
+            "dependencyConditions": [
+                "Succeeded"
+            ]
+        }
+    ],
+    "policy": {
+        "timeout": "7.00:00:00",
+        "retry": 0,
+        "retryIntervalInSeconds": 30,
+        "secureOutput": false,
+        "secureInput": false
+    },
+    "userProperties": [],
+    "typeProperties": {
+        "source": {
+            "type": "CosmosDbMongoDbApiSource",
+            "batchSize": 100,
+            "filter": "{ackPipelineId: \"@{pipeline().RunId}\"}",
+            "cursorMethods": {
+                "project": "{senderCode: 1, acquirerId: 1, fiscalCode: 1}"
+            }
+        },
+        "sink": {
+            "type": "DelimitedTextSink",
+            "storeSettings": {
+                "type": "AzureBlobStorageWriteSettings"
+            },
+            "formatSettings": {
+                "type": "DelimitedTextWriteSettings",
+                "quoteAllText": true,
+                "fileExtension": ".txt"
+            }
+        },
+        "enableStaging": false
+    },
+    "inputs": [
+        {
+            "referenceName": "Aggregate",
+            "type": "DatasetReference"
+        }
+    ],
+    "outputs": [
+        {
+            "referenceName": "WrongFiscalCodes",
+            "type": "DatasetReference",
+            "parameters": {
+                "file": "myFile"
+            }
+        }
+    ]
+}
 ]
