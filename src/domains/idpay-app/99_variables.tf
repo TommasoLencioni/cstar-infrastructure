@@ -268,3 +268,10 @@ variable "p7m_cert_validity_hours" {
   default = 87600 # 10 year
 
 }
+
+# Mock PDND API
+
+variable "enable_pdnd_api_mock" {
+  type    = bool
+  default = false
+}

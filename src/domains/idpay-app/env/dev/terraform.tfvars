@@ -100,3 +100,6 @@ reverse_proxy_rtd = "10.1.0.250"
 # SMTP Server
 #
 mail_server_host = "smtp.ethereal.email"
+
+# Mock PDND API
+enable_pdnd_api_mock = true

@@ -1,0 +1,34 @@
+openapi: 3.0.1
+info:
+  title: IDPAY MOCK External Services for ANPR API
+  description: IDPAY MOCK External Services for ANPR
+  version: '1.0'
+servers:
+  - url: https://api-io.dev.cstar.pagopa.it/idpay/mock-ex-serv-anpr
+paths:
+  /anpr-service-e002:
+    post:
+      tags:
+        - c020-residenza
+      summary: Accertamento Residenza
+      description: Accertamento Residenza
+      operationId: accertamentoResidenza
+      requestBody:
+        required: false
+        description: Richiesta da consultare
+        content:
+          application/json:
+            schema:
+              x-nullable: true
+      responses:
+        '200':
+          description: Caso d'uso trovato
+components:
+  # schemas:
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      name: Authorization
+      in: header
+security:
+  - Bearer: []
