@@ -205,6 +205,8 @@ components:
         amountCents:
           type: integer
           format: int64
+        residualBudget:
+          type: number
     ErrorDTO:
       type: object
       required:
