@@ -124,8 +124,8 @@ configmaps_bpdmsnotificationmanager = {
   NOTIFICATION_SERVICE_UPDATE_RANKING_THREAD_POOL                  = "2"
   POSTGRES_POOLSIZE                                                = "5"
   POSTGRES_SHOW_SQL                                                = "false"
-  SFTP_HOST                                                        = "185.91.56.144"
-  SFTP_PORT                                                        = "8022"
+  SFTP_HOST                                                        = "10.1.137.5"
+  SFTP_PORT                                                        = "22"
 }
 
 # bpdmspaymentinstrument
@@ -400,11 +400,12 @@ configmaps_rtdenrolledpaymentinstrument = {
   APPLICATIONINSIGHTS_ROLE_NAME                          = "rtdenrolledpaymentinstrument"
   APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL      = "INFO"
   APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED = "false"
+  BASEURL_TOKEN_FINDER                                   = ""
 }
 
 configmaps_rtdproducerenrolledpaymentinstrument = {
-  KAFKA_PARTITION_KEY_EXPRESSION = "headers.partitionKey"
-  KAFKA_PARTITION_COUNT          = 1
+  KAFKA_PARTITION_KEY_EXPRESSION      = "headers.partitionKey"
+  KAFKA_RTD_PI_TO_APP_PARTITION_COUNT = 8
 }
 
 # rtd-ms-pi-event-processor
@@ -413,7 +414,7 @@ configmaps_rtdpieventprocessor = {
   APPLICATIONINSIGHTS_ROLE_NAME                          = "rtdpieventprocessor"
   APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL      = "INFO"
   APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED = "false"
-  KAFKA_RTD_SPLIT_PARTITION_COUNT                        = 1
+  KAFKA_RTD_SPLIT_PARTITION_COUNT                        = 8
 }
 
 autoscaling_specs = {
@@ -653,25 +654,13 @@ secrets_to_be_read_from_kv = [
   "evh-rtd-trx-rtd-csv-connector-key",
   "notification-sftp-private-key",
   "notification-service-notify-winners-public-key",
+  "bpd-notificator-sftp-user",
   "notification-sftp-password",
   "pagopa-checkiban-apikey",
   "storageaccount-cstarblob-key",
   "url-backend-io-token-value",
   # FA
-  "evh-fa-trx-customer-fa-trx-customer-consumer-key-fa-01",
-  "evh-fa-trx-merchant-fa-trx-merchant-producer-key-fa-01",
-  "evh-rtd-trx-rtd-trx-consumer-key",
-  "evh-fa-trx-customer-fa-trx-customer-producer-key-fa-01",
-  "evh-fa-trx-fa-trx-consumer-key-fa-01",
-  "evh-fa-trx-error-fa-trx-error-producer-key-fa-01",
-  "evh-fa-trx-merchant-fa-trx-merchant-consumer-key-fa-01",
-  "evh-fa-trx-fa-trx-producer-key-fa-01",
-  "evh-fa-trx-error-fa-trx-error-consumer-key-fa-01",
-  "evh-fa-trx-fa-trx-producer-key-fa-01",
-  "evh-fa-trx-customer-fa-trx-customer-producer-key-fa-01",
   "evh-rtd-trx-rtd-trx-producer-key",
-  "evh-fa-trx-payment-instrument-fa-trx-payment-instrument-consumer-key-fa-01",
-  "evh-fa-trx-payment-instrument-fa-trx-payment-instrument-producer-key-fa-01",
   "evh-rtd-platform-events-rtd-platform-events-sub-key",
   "tae-ade-api-client-id",
   "tae-ade-api-client-secret",
@@ -680,9 +669,7 @@ secrets_to_be_read_from_kv = [
   "cstarblobstorage-private-key-passphrase",
   "rtd-internal-api-product-subscription-key",
   "mongo-db-connection-uri",
-  "evh-rtd-enrolled-pi-rtd-enrolled-pi-consumer-policy-key",
   "evh-tkm-write-update-token-tkm-write-update-token-sub-key",
-  "evh-rtd-revoked-pi-rtd-revoked-pi-producer-policy-key-fa-01"
 ]
 
 secrets_from_rtd_domain_kv = {
@@ -712,10 +699,4 @@ enable = {
   fa = {
     api = false
   }
-}
-
-eventhub_enrolled_pi = {
-  name                = "rtd-enrolled-pi"
-  namespace_name      = "cstar-p-evh-ns"
-  resource_group_name = "cstar-p-msg-rg"
 }

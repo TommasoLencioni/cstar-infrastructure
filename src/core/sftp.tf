@@ -7,17 +7,21 @@ resource "azurerm_resource_group" "sftp" {
 }
 
 module "sftp" {
-  source = "git::https://github.com/pagopa/azurerm.git//storage_account?ref=v2.18.0"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//storage_account?ref=v6.17.0"
 
   name                = replace("${local.project}-sftp", "-", "")
   resource_group_name = azurerm_resource_group.sftp.name
   location            = azurerm_resource_group.sftp.location
 
-  account_kind             = "StorageV2"
-  account_tier             = "Standard"
-  account_replication_type = var.sftp_account_replication_type
-  access_tier              = "Hot"
-  is_hns_enabled           = true
+  account_kind                  = "StorageV2"
+  account_tier                  = "Standard"
+  account_replication_type      = var.sftp_account_replication_type
+  access_tier                   = "Hot"
+  is_hns_enabled                = true
+  is_sftp_enabled               = true
+  advanced_threat_protection    = true
+  enable_low_availability_alert = false
+  public_network_access_enabled = true
 
   network_rules = {
     default_action             = var.sftp_disable_network_rules ? "Allow" : "Deny"
@@ -58,6 +62,10 @@ resource "azurerm_eventgrid_system_topic" "sftp" {
   location               = azurerm_resource_group.sftp.location
   source_arm_resource_id = module.sftp.id
   topic_type             = "Microsoft.Storage.StorageAccounts"
+
+  identity {
+    type = "SystemAssigned"
+  }
 }
 
 resource "azurerm_eventgrid_system_topic_event_subscription" "sftp" {
@@ -68,7 +76,23 @@ resource "azurerm_eventgrid_system_topic_event_subscription" "sftp" {
   subject_filter {
     subject_begins_with = "/blobServices/default/containers/ade/blobs/"
   }
+
+  delivery_identity {
+    type = "SystemAssigned"
+  }
+
+  depends_on = [
+    azurerm_role_assignment.event_grid_sender_role_sftp_on_rtd_platform_events
+  ]
 }
+
+# Assign role to event grid topic to publish over rtd-platform-events
+resource "azurerm_role_assignment" "event_grid_sender_role_sftp_on_rtd_platform_events" {
+  role_definition_name = "Azure Event Hubs Data Sender"
+  principal_id         = azurerm_eventgrid_system_topic.sftp.identity[0].principal_id
+  scope                = data.azurerm_eventhub.rtd_platform_eventhub.id
+}
+
 
 resource "azurerm_storage_container" "ade" {
   name                  = "ade"
@@ -102,4 +126,18 @@ resource "azurerm_role_assignment" "sftp_data_contributor_role" {
   depends_on = [
     module.sftp
   ]
+}
+
+resource "azurerm_storage_container" "consap" {
+  name                  = "consap"
+  storage_account_name  = module.sftp.name
+  container_access_type = "private"
+}
+
+resource "azurerm_storage_blob" "consap_dirs" {
+  for_each               = toset(["Inbox"])
+  name                   = format("%s/.test", each.key)
+  storage_account_name   = module.sftp.name
+  storage_container_name = azurerm_storage_container.consap.name
+  type                   = "Block"
 }

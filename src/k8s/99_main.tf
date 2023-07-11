@@ -1,23 +1,23 @@
 terraform {
-  required_version = ">=0.15.3"
+  required_version = ">= 1.3.0"
 
   backend "azurerm" {}
 
   required_providers {
     azurerm = {
-      version = "= 2.70.0"
+      version = ">= 3.53.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "= 1.6.0"
+      version = "~> 2.39.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.11.0"
+      version = "~> 2.17.0"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 2.2.0"
+      version = "~> 2.8.0"
     }
   }
 }

@@ -34,6 +34,13 @@ cosmos_dbms_params = {
   additional_geo_locations          = []
   is_virtual_network_filter_enabled = true
 
+  additional_geo_locations = [{
+    failover_priority = 1
+    location          = "northeurope"
+    zone_redundant    = false
+    }
+  ]
+
   backup_continuous_enabled = true
 }
 
@@ -47,7 +54,7 @@ cosmos_db_aggregates_params = {
 dexp_db = {
   enable             = true
   hot_cache_period   = "P15D"
-  soft_delete_period = "P10Y"
+  soft_delete_period = "P3650D"
 }
 
 ### External resources

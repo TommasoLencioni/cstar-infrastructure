@@ -398,8 +398,8 @@ configmaps_rtdenrolledpaymentinstrument = {
 }
 
 configmaps_rtdproducerenrolledpaymentinstrument = {
-  KAFKA_PARTITION_KEY_EXPRESSION = "headers.partitionKey"
-  KAFKA_PARTITION_COUNT          = 1
+  KAFKA_PARTITION_KEY_EXPRESSION      = "headers.partitionKey"
+  KAFKA_RTD_PI_TO_APP_PARTITION_COUNT = 1
 }
 
 # rtd-ms-pi-event-processor
@@ -482,6 +482,28 @@ fa_autoscaling_specs = {
         }
       }
     ]
+    behaviors = [
+      {
+        scale_down = {
+          stabilization_window_seconds = 300
+          select_policy                = "Min"
+          policy = {
+            period_seconds = 120
+            type           = "Pods"
+            value          = 1
+          }
+        }
+        scale_up = {
+          stabilization_window_seconds = 600
+          select_policy                = "Max"
+          policy = {
+            period_seconds = 600
+            type           = "Pods"
+            value          = 1
+          }
+        }
+      }
+    ]
   }
   famsenrollment = {
 
@@ -498,6 +520,28 @@ fa_autoscaling_specs = {
           target = {
             type                = "Utilization"
             average_utilization = 80
+          }
+        }
+      }
+    ]
+    behaviors = [
+      {
+        scale_down = {
+          stabilization_window_seconds = 300
+          select_policy                = "Min"
+          policy = {
+            period_seconds = 120
+            type           = "Pods"
+            value          = 1
+          }
+        }
+        scale_up = {
+          stabilization_window_seconds = 600
+          select_policy                = "Max"
+          policy = {
+            period_seconds = 600
+            type           = "Pods"
+            value          = 1
           }
         }
       }
@@ -522,6 +566,28 @@ fa_autoscaling_specs = {
         }
       }
     ]
+    behaviors = [
+      {
+        scale_down = {
+          stabilization_window_seconds = 300
+          select_policy                = "Min"
+          policy = {
+            period_seconds = 120
+            type           = "Pods"
+            value          = 1
+          }
+        }
+        scale_up = {
+          stabilization_window_seconds = 600
+          select_policy                = "Max"
+          policy = {
+            period_seconds = 600
+            type           = "Pods"
+            value          = 1
+          }
+        }
+      }
+    ]
   }
   famsinvoicemanager = {
 
@@ -538,6 +604,28 @@ fa_autoscaling_specs = {
           target = {
             type                = "Utilization"
             average_utilization = 85
+          }
+        }
+      }
+    ]
+    behaviors = [
+      {
+        scale_down = {
+          stabilization_window_seconds = 300
+          select_policy                = "Min"
+          policy = {
+            period_seconds = 120
+            type           = "Pods"
+            value          = 1
+          }
+        }
+        scale_up = {
+          stabilization_window_seconds = 600
+          select_policy                = "Max"
+          policy = {
+            period_seconds = 600
+            type           = "Pods"
+            value          = 1
           }
         }
       }
@@ -562,6 +650,28 @@ fa_autoscaling_specs = {
         }
       }
     ]
+    behaviors = [
+      {
+        scale_down = {
+          stabilization_window_seconds = 20
+          select_policy                = "Min"
+          policy = {
+            period_seconds = 15
+            type           = "Pods"
+            value          = 1
+          }
+        }
+        scale_up = {
+          stabilization_window_seconds = 5
+          select_policy                = "Max"
+          policy = {
+            period_seconds = 15
+            type           = "Pods"
+            value          = 1
+          }
+        }
+      }
+    ]
   }
   famsmerchant = {
 
@@ -578,6 +688,28 @@ fa_autoscaling_specs = {
           target = {
             type                = "Utilization"
             average_utilization = 80
+          }
+        }
+      }
+    ]
+    behaviors = [
+      {
+        scale_down = {
+          stabilization_window_seconds = 20
+          select_policy                = "Min"
+          policy = {
+            period_seconds = 15
+            type           = "Pods"
+            value          = 1
+          }
+        }
+        scale_up = {
+          stabilization_window_seconds = 5
+          select_policy                = "Max"
+          policy = {
+            period_seconds = 15
+            type           = "Pods"
+            value          = 1
           }
         }
       }
@@ -602,6 +734,28 @@ fa_autoscaling_specs = {
         }
       }
     ]
+    behaviors = [
+      {
+        scale_down = {
+          stabilization_window_seconds = 20
+          select_policy                = "Min"
+          policy = {
+            period_seconds = 15
+            type           = "Pods"
+            value          = 1
+          }
+        }
+        scale_up = {
+          stabilization_window_seconds = 5
+          select_policy                = "Max"
+          policy = {
+            period_seconds = 15
+            type           = "Pods"
+            value          = 1
+          }
+        }
+      }
+    ]
   }
   famsonboardingmerchant = {
 
@@ -618,6 +772,28 @@ fa_autoscaling_specs = {
           target = {
             type                = "Utilization"
             average_utilization = 80
+          }
+        }
+      }
+    ]
+    behaviors = [
+      {
+        scale_down = {
+          stabilization_window_seconds = 20
+          select_policy                = "Min"
+          policy = {
+            period_seconds = 15
+            type           = "Pods"
+            value          = 1
+          }
+        }
+        scale_up = {
+          stabilization_window_seconds = 5
+          select_policy                = "Max"
+          policy = {
+            period_seconds = 15
+            type           = "Pods"
+            value          = 1
           }
         }
       }
@@ -642,6 +818,28 @@ fa_autoscaling_specs = {
         }
       }
     ]
+    behaviors = [
+      {
+        scale_down = {
+          stabilization_window_seconds = 20
+          select_policy                = "Min"
+          policy = {
+            period_seconds = 15
+            type           = "Pods"
+            value          = 1
+          }
+        }
+        scale_up = {
+          stabilization_window_seconds = 5
+          select_policy                = "Max"
+          policy = {
+            period_seconds = 15
+            type           = "Pods"
+            value          = 1
+          }
+        }
+      }
+    ]
   }
   famstransactionerrormanager = {
 
@@ -658,6 +856,28 @@ fa_autoscaling_specs = {
           target = {
             type                = "Utilization"
             average_utilization = 85
+          }
+        }
+      }
+    ]
+    behaviors = [
+      {
+        scale_down = {
+          stabilization_window_seconds = 20
+          select_policy                = "Min"
+          policy = {
+            period_seconds = 15
+            type           = "Pods"
+            value          = 1
+          }
+        }
+        scale_up = {
+          stabilization_window_seconds = 5
+          select_policy                = "Max"
+          policy = {
+            period_seconds = 15
+            type           = "Pods"
+            value          = 1
           }
         }
       }
@@ -688,6 +908,7 @@ secrets_to_be_read_from_kv = [
   "evh-bpd-winner-outcome-award-winner-integration-key",
   "evh-rtd-trx-bpd-payment-instrument-key",
   "evh-rtd-trx-rtd-csv-connector-key",
+  "bpd-notificator-sftp-user",
   "notification-sftp-private-key",
   "notification-service-notify-winners-public-key",
   "notification-sftp-password",
@@ -695,20 +916,8 @@ secrets_to_be_read_from_kv = [
   "storageaccount-cstarblob-key",
   "url-backend-io-token-value",
   # FA
-  "evh-fa-trx-customer-fa-trx-customer-consumer-key-fa-01",
-  "evh-fa-trx-merchant-fa-trx-merchant-producer-key-fa-01",
   "evh-rtd-trx-rtd-trx-consumer-key",
-  "evh-fa-trx-customer-fa-trx-customer-producer-key-fa-01",
-  "evh-fa-trx-fa-trx-consumer-key-fa-01",
-  "evh-fa-trx-error-fa-trx-error-producer-key-fa-01",
-  "evh-fa-trx-merchant-fa-trx-merchant-consumer-key-fa-01",
-  "evh-fa-trx-fa-trx-producer-key-fa-01",
-  "evh-fa-trx-error-fa-trx-error-consumer-key-fa-01",
-  "evh-fa-trx-fa-trx-producer-key-fa-01",
-  "evh-fa-trx-customer-fa-trx-customer-producer-key-fa-01",
   "evh-rtd-trx-rtd-trx-producer-key",
-  "evh-fa-trx-payment-instrument-fa-trx-payment-instrument-consumer-key-fa-01",
-  "evh-fa-trx-payment-instrument-fa-trx-payment-instrument-producer-key-fa-01",
   "evh-rtd-platform-events-rtd-platform-events-sub-key",
   "tae-ade-api-client-id",
   "tae-ade-api-client-secret",
@@ -716,9 +925,7 @@ secrets_to_be_read_from_kv = [
   "cstarblobstorage-private-key-passphrase",
   "rtd-internal-api-product-subscription-key",
   "mongo-db-connection-uri",
-  "evh-rtd-enrolled-pi-rtd-enrolled-pi-consumer-policy-key",
   "evh-tkm-write-update-token-tkm-write-update-token-sub-key",
-  "evh-rtd-revoked-pi-rtd-revoked-pi-producer-policy-key"
 ]
 
 secrets_from_rtd_domain_kv = {
@@ -731,7 +938,8 @@ secrets_from_rtd_domain_kv = {
     "evh-rtd-split-by-pi-rtd-split-by-pi-producer-policy-rtd",
     "evh-rtd-file-register-projector-rtd-file-register-projector-consumer-policy-rtd",
     "evh-rtd-file-register-projector-rtd-file-register-projector-producer-policy-rtd",
-    "pagopa-platform-apim-api-key-primary"
+    "pagopa-platform-apim-api-key-primary",
+    "pagopa-platform-apim-api-key-primary-tkm"
   ]
 }
 
@@ -748,10 +956,4 @@ enable = {
   fa = {
     api = true
   }
-}
-
-eventhub_enrolled_pi = {
-  name                = "rtd-enrolled-pi"
-  namespace_name      = "cstar-u-evh-ns"
-  resource_group_name = "cstar-u-msg-rg"
 }

@@ -1,62 +1,27 @@
 resource "azurerm_resource_group" "rg_storage" {
-  name     = format("%s-storage-rg", local.project)
+  name     = "${local.project}-storage-rg"
   location = var.location
   tags     = var.tags
 }
 
-## Storage account to save psql terraform state
-module "psql_storage_account_terraform_state" {
-  source = "git::https://github.com/pagopa/azurerm.git//storage_account?ref=v1.0.5"
-
-  name            = replace(format("%s-sapsqlinfra", local.project), "-", "")
-  versioning_name = format("%s-sa-psqlinfra-versioning", local.project)
-
-  account_kind             = "StorageV2"
-  account_tier             = "Standard"
-  account_replication_type = "GRS"
-  access_tier              = "Hot"
-  enable_versioning        = true
-  resource_group_name      = azurerm_resource_group.db_rg.name
-  location                 = var.location
-
-  tags = var.tags
-}
-
-# Container to stare the status file
-resource "azurerm_storage_container" "psql_state" {
-  depends_on = [module.psql_storage_account_terraform_state]
-
-  name                  = format("%s-psql-state", var.prefix)
-  storage_account_name  = module.psql_storage_account_terraform_state.name
-  container_access_type = "private"
-}
-
 ## Storage account to save cstar blob
 module "cstarblobstorage" {
-  source = "git::https://github.com/pagopa/azurerm.git//storage_account?ref=v2.1.26"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//storage_account?ref=v6.2.1"
 
-  name                     = replace(format("%s-blobstorage", local.project), "-", "")
-  account_kind             = "StorageV2"
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  access_tier              = "Hot"
-  enable_versioning        = false
-  resource_group_name      = azurerm_resource_group.rg_storage.name
-  location                 = var.location
-  allow_blob_public_access = false
-
-  # Must be added is a subsequent PR, since it inhibits terraform access to containers state
-
-  # network_rules = {
-
-  #   default_action             = "Deny"
-  #   bypass                     = ["Metrics", "AzureServices"]
-  #   ip_rules                   = []
-  #   virtual_network_subnet_ids = [module.apim_snet.id]
-  # }
-
-
-  tags = var.tags
+  name                             = replace("${local.project}-blobstorage", "-", "")
+  account_kind                     = "StorageV2"
+  account_tier                     = "Standard"
+  account_replication_type         = var.env_short == "p" ? "RAGZRS" : "RAGRS"
+  access_tier                      = "Hot"
+  blob_versioning_enabled          = false
+  resource_group_name              = azurerm_resource_group.rg_storage.name
+  location                         = var.location
+  allow_nested_items_to_be_public  = false
+  advanced_threat_protection       = true
+  enable_low_availability_alert    = false
+  public_network_access_enabled    = true
+  cross_tenant_replication_enabled = false
+  tags                             = var.tags
 }
 
 resource "azurerm_role_assignment" "data_contributor_role" {
@@ -161,22 +126,6 @@ resource "azurerm_storage_container" "cstar_exports" {
   container_access_type = "private"
 }
 
-resource "azurerm_storage_container" "cstar_hashed_pans" {
-  count = var.enable.rtd.hashed_pans_container ? 1 : 0
-
-  name                  = "cstar-hashed-pans"
-  storage_account_name  = module.cstarblobstorage.name
-  container_access_type = "private"
-}
-
-resource "azurerm_storage_container" "cstar_hashed_pans_par" {
-  count = var.enable.rtd.hashed_pans_container ? 1 : 0
-
-  name                  = "cstar-hashed-pans-par"
-  storage_account_name  = module.cstarblobstorage.name
-  container_access_type = "private"
-}
-
 # Container transaction decrypted RTD
 resource "azurerm_storage_container" "rtd_transactions_decrypted" {
   name                  = "rtd-transactions-decrypted"
@@ -195,26 +144,21 @@ resource "azurerm_key_vault_secret" "cstar_blobstorage_key" {
 
 ## Storage account to save logs
 module "operations_logs" {
-  source = "git::https://github.com/pagopa/azurerm.git//storage_account?ref=v1.0.7"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//storage_account?ref=v6.2.1"
 
-  name                = replace(format("%s-sa-ops-logs", local.project), "-", "")
-  versioning_name     = format("%s-sa-ops-versioning", local.project)
+  name                = replace("${local.project}-sa-ops-logs", "-", "")
   resource_group_name = azurerm_resource_group.rg_storage.name
   location            = var.location
 
-  account_kind             = "StorageV2"
-  account_tier             = "Standard"
-  account_replication_type = "GRS"
-  access_tier              = "Hot"
-  enable_versioning        = true
-
-  lock_enabled = true
-  lock_name    = "storage-logs"
-  lock_level   = "CanNotDelete"
-  lock_notes   = null
-
-
-  tags = var.tags
+  account_kind                  = "StorageV2"
+  account_tier                  = "Standard"
+  account_replication_type      = "GRS"
+  access_tier                   = "Hot"
+  blob_versioning_enabled       = true
+  advanced_threat_protection    = true
+  enable_low_availability_alert = false
+  public_network_access_enabled = true
+  tags                          = var.tags
 }
 
 ###########################
@@ -225,6 +169,7 @@ module "operations_logs" {
 data "local_file" "tc_html" {
   filename = "${path.module}/blob/tc/bpd-tc.html"
 }
+
 resource "null_resource" "upload_tc_html" {
   triggers = {
     "changes-in-config" : md5(data.local_file.tc_html.content)
@@ -244,6 +189,7 @@ resource "null_resource" "upload_tc_html" {
 data "local_file" "tc_pdf" {
   filename = "${path.module}/blob/tc/bpd-tc.pdf"
 }
+
 resource "null_resource" "upload_tc_pdf" {
   triggers = {
     "changes-in-config" : md5(data.local_file.tc_pdf.content)
@@ -263,32 +209,64 @@ resource "null_resource" "upload_tc_pdf" {
 
 # Storage account to store backups: mainly api management
 module "backupstorage" {
-  count  = var.env_short == "p" ? 1 : 0
-  source = "git::https://github.com/pagopa/azurerm.git//storage_account?ref=v2.1.26"
+  count  = 1
+  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//storage_account?ref=v6.2.1"
 
-  name                     = replace(format("%s-backupstorage", local.project), "-", "")
-  account_kind             = "BlobStorage"
-  account_tier             = "Standard"
-  account_replication_type = "GRS"
-  access_tier              = "Cool"
-  enable_versioning        = true
-  versioning_name          = "versioning"
-  resource_group_name      = azurerm_resource_group.rg_storage.name
-  location                 = var.location
-  allow_blob_public_access = false
+  name                            = replace("${local.project}-backupstorage", "-", "")
+  account_kind                    = "StorageV2"
+  account_tier                    = "Standard"
+  account_replication_type        = "GRS"
+  access_tier                     = "Cool"
+  blob_versioning_enabled         = true
+  resource_group_name             = azurerm_resource_group.rg_storage.name
+  location                        = var.location
+  allow_nested_items_to_be_public = false
+  advanced_threat_protection      = true
+  enable_low_availability_alert   = false
+  public_network_access_enabled   = false
+  tags                            = var.tags
+}
+
+resource "azurerm_private_endpoint" "backupstorage_private_endpoint" {
+  count = 1
+
+  name                = "${local.project}-backupstorage-private-endpoint"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg_storage.name
+  subnet_id           = module.private_endpoint_snet[0].id
+
+  private_dns_zone_group {
+    name                 = "${local.project}-backupstorage-private-dns-zone-group"
+    private_dns_zone_ids = [azurerm_private_dns_zone.storage_account.id]
+  }
+
+  private_service_connection {
+    name                           = "${local.project}-backupstorage-private-service-connection"
+    private_connection_resource_id = module.backupstorage[0].id
+    is_manual_connection           = false
+    subresource_names              = ["blob"]
+  }
 
   tags = var.tags
+
+  depends_on = [
+    module.backupstorage
+  ]
 }
 
 resource "azurerm_storage_container" "apim_backup" {
-  count                 = var.env_short == "p" ? 1 : 0
+  count                 = 1
   name                  = "apim"
   storage_account_name  = module.backupstorage[0].name
   container_access_type = "private"
+
+  depends_on = [
+    azurerm_private_endpoint.backupstorage_private_endpoint
+  ]
 }
 
 resource "azurerm_storage_management_policy" "backups" {
-  count              = var.env_short == "p" ? 1 : 0
+  count              = 1
   storage_account_id = module.backupstorage[0].id
 
   rule {
@@ -304,4 +282,8 @@ resource "azurerm_storage_management_policy" "backups" {
       }
     }
   }
+
+  depends_on = [
+    azurerm_private_endpoint.backupstorage_private_endpoint
+  ]
 }

@@ -34,9 +34,9 @@ rtd_keyvault = {
   resource_group = "cstar-d-rtd-sec-rg"
 }
 
-cosmos_mongo_db_params = {
+cosmos_mongo_account_params = {
   enabled      = true
-  capabilities = ["EnableMongo", "EnableServerless"]
+  capabilities = ["EnableMongo", "EnableServerless", "DisableRateLimitingResponses"]
   offer_type   = "Standard"
   consistency_policy = {
     consistency_level       = "Strong"
@@ -48,19 +48,17 @@ cosmos_mongo_db_params = {
   enable_free_tier                 = false
 
   additional_geo_locations          = []
-  private_endpoint_enabled          = false
+  private_endpoint_enabled          = true
   public_network_access_enabled     = true
-  is_virtual_network_filter_enabled = false
+  is_virtual_network_filter_enabled = true
 
   backup_continuous_enabled = false
 
 }
 
-cosmos_mongo_db_transaction_params = {
-  enable_serverless  = true
-  enable_autoscaling = true
-  max_throughput     = 5000
-  throughput         = 1000
+cosmos_mongo_db_idpay_params = {
+  throughput     = null
+  max_throughput = null
 }
 
 service_bus_namespace = {
@@ -407,3 +405,13 @@ enable = {
     eventhub_idpay_00 = true
   }
 }
+
+### AKS VNet
+aks_vnet = {
+  name           = "cstar-d-weu-dev01-vnet"
+  resource_group = "cstar-d-weu-dev01-vnet-rg"
+  subnet         = "cstar-d-weu-dev01-aks-snet"
+}
+
+
+redis_public_network_access_enabled = true

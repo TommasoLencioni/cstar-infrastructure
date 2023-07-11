@@ -4,6 +4,7 @@ location_pair       = "northeurope"
 location_short      = "weu"
 location_pair_short = "neu"
 env_short           = "u"
+env                 = "uat"
 
 tags = {
   CreatedBy   = "Terraform"
@@ -15,6 +16,7 @@ tags = {
 
 apim_notification_sender_email = "info@pagopa.it"
 cstar_support_email            = "cstar@assistenza.pagopa.it"
+pgp_put_limit_bytes            = 524288000 # 500MB
 apim_publisher_name            = "PagoPA Centro Stella UAT"
 apim_sku                       = "Developer_1"
 
@@ -43,6 +45,12 @@ cidr_subnet_apim      = ["10.230.7.0/26"]
 cidr_subnet_eventhub  = ["10.230.7.64/26"]
 
 #
+# Pair VNET
+#
+cidr_pair_vnet                = ["10.101.0.0/16"]
+cidr_subnet_pair_dnsforwarder = ["10.101.133.0/29"]
+
+#
 # ⛴ AKS Vnet
 #
 aks_networks = [
@@ -51,6 +59,7 @@ aks_networks = [
     vnet_cidr   = ["10.11.0.0/16"]
   }
 ]
+aks_availability_zones = []
 
 aks_enable_auto_scaling = true
 aks_min_node_count      = 1
@@ -342,7 +351,7 @@ db_metric_alerts = {
 
 pgres_flex_params = {
 
-  enabled    = true
+  enabled    = false
   sku_name   = "B_Standard_B1ms"
   db_version = "13"
   # Possible values are 32768, 65536, 131072, 262144, 524288, 1048576,
@@ -365,38 +374,7 @@ dns_storage_account_tkm = {
 }
 
 cosmos_mongo_db_params = {
-  enabled      = true
-  kind         = "MongoDB"
-  capabilities = ["EnableMongo", "EnableServerless"]
-  offer_type   = "Standard"
-  consistency_policy = {
-    consistency_level       = "BoundedStaleness"
-    max_interval_in_seconds = 300
-    max_staleness_prefix    = 100000
-  }
-  server_version                   = "4.0"
-  main_geo_location_zone_redundant = false
-  enable_free_tier                 = false
-
-  private_endpoint_enabled      = true
-  public_network_access_enabled = true
-  additional_geo_locations      = []
-  # additional_geo_locations = [{
-  #   location          = "northeurope"
-  #   failover_priority = 1
-  #   zone_redundant    = false
-  # }]
-
-  is_virtual_network_filter_enabled = true
-
-  backup_continuous_enabled = false
-}
-
-cosmos_mongo_db_transaction_params = {
-  enable_serverless  = true
-  enable_autoscaling = true
-  max_throughput     = 5000
-  throughput         = 1000
+  enabled = true
 }
 
 dexp_params = {
@@ -591,7 +569,7 @@ eventhubs = [
   },
   {
     name              = "rtd-trx"
-    partitions        = 1
+    partitions        = 16
     message_retention = 1
     consumers         = ["bpd-payment-instrument", "rtd-trx-fa-comsumer-group", "idpay-consumer-group"]
     keys = [
@@ -644,46 +622,6 @@ eventhubs = [
     ]
   },
   {
-    name              = "rtd-enrolled-pi"
-    partitions        = 1
-    message_retention = 1
-    consumers         = ["rtd-enrolled-payment-instrument-consumer-group"]
-    keys = [
-      {
-        name   = "rtd-enrolled-pi-consumer-policy"
-        listen = true
-        send   = true
-        manage = false
-      },
-      {
-        name   = "rtd-enrolled-pi-producer-policy"
-        listen = false
-        send   = true
-        manage = false
-      }
-    ]
-  },
-  {
-    name              = "rtd-revoked-pi"
-    partitions        = 1
-    message_retention = 1
-    consumers         = ["rtd-revoked-payment-instrument-consumer-group"]
-    keys = [
-      {
-        name   = "rtd-revoked-pi-consumer-policy"
-        listen = true
-        send   = false
-        manage = false
-      },
-      {
-        name   = "rtd-revoked-pi-producer-policy"
-        listen = false
-        send   = true
-        manage = false
-      }
-    ]
-  },
-  {
     name              = "tkm-write-update-token"
     partitions        = 1
     message_retention = 1
@@ -714,109 +652,6 @@ eventhubs = [
   }
 ]
 
-eventhubs_fa = [
-  {
-    name              = "fa-trx-error"
-    partitions        = 1
-    message_retention = 1
-    consumers         = ["fa-trx-error-consumer-group"]
-    keys = [
-      {
-        name   = "fa-trx-error-producer"
-        listen = false
-        send   = true
-        manage = false
-      },
-      {
-        name   = "fa-trx-error-consumer"
-        listen = true
-        send   = false
-        manage = false
-      }
-    ]
-  },
-  {
-    name              = "fa-trx"
-    partitions        = 1
-    message_retention = 1
-    consumers         = ["fa-trx-consumer-group"]
-    keys = [
-      {
-        name   = "fa-trx-producer"
-        listen = false
-        send   = true
-        manage = false
-      },
-      {
-        name   = "fa-trx-consumer"
-        listen = true
-        send   = false
-        manage = false
-      }
-    ]
-  },
-  {
-    name              = "fa-trx-merchant"
-    partitions        = 1
-    message_retention = 1
-    consumers         = ["fa-trx-merchant-consumer-group"]
-    keys = [
-      {
-        name   = "fa-trx-merchant-producer"
-        listen = false
-        send   = true
-        manage = false
-      },
-      {
-        name   = "fa-trx-merchant-consumer"
-        listen = true
-        send   = false
-        manage = false
-      }
-    ]
-  },
-  {
-    name              = "fa-trx-customer"
-    partitions        = 1
-    message_retention = 1
-    consumers         = ["fa-trx-customer-consumer-group"]
-    keys = [
-      {
-        name   = "fa-trx-customer-producer"
-        listen = false
-        send   = true
-        manage = false
-      },
-      {
-        name   = "fa-trx-customer-consumer"
-        listen = true
-        send   = false
-        manage = false
-      }
-    ]
-  },
-  {
-    name              = "fa-trx-payment-instrument"
-    partitions        = 1
-    message_retention = 1
-    consumers         = ["fa-trx-payment-instrument-consumer-group"]
-    keys = [
-      {
-        name   = "fa-trx-payment-instrument-producer"
-        listen = false
-        send   = true
-        manage = false
-      },
-      {
-        name   = "fa-trx-payment-instrument-consumer"
-        listen = true
-        send   = false
-        manage = false
-      }
-    ]
-  },
-]
-
 external_domain = "pagopa.it"
 
 pm_backend_url      = "https://api.uat.platform.pagopa.it"
@@ -825,17 +660,6 @@ pagopa_platform_url = "https://api.uat.platform.pagopa.it"
 pm_ip_filter_range = {
   from = "10.230.1.1"
   to   = "10.230.1.255"
-}
-
-# See cidr_subnet_k8s
-k8s_ip_filter_range = {
-  from = "10.1.0.1"
-  to   = "10.1.127.254"
-}
-
-k8s_ip_filter_range_aks = {
-  from = "10.11.0.1"
-  to   = "10.11.127.254"
 }
 
 # This is the k8s ingress controller ip. It must be in the aks subnet range.
@@ -858,26 +682,26 @@ cdc_api_params = {
   host = "https://apitest.agenziaentrate.gov.it/interop/carta-cultura/"
 }
 
-enable_api_fa                              = true
+enable_api_fa                              = false
 enable_blob_storage_event_grid_integration = true
 
 enable = {
+  core = {
+    private_endpoints_subnet = true
+  }
   rtd = {
     blob_storage_event_grid_integration = true
     internal_api                        = true
-    csv_transaction_apis                = true
-    file_register                       = false
     batch_service_api                   = true
     enrolled_payment_instrument         = true
+    payment_instrument                  = false
     mongodb_storage                     = true
-    sender_auth                         = true
-    hashed_pans_container               = true
+    hashed_pans_container               = false
     pm_wallet_ext_api                   = true
-    pm_integration                      = true
-    tkm_integration                     = false
+    tkm_integration                     = true
   }
   fa = {
-    api = true
+    api = false
   }
   cdc = {
     api = true
@@ -892,3 +716,12 @@ enable = {
     eventhub_idpay = true
   }
 }
+
+# cstarblobstorage
+cstarblobstorage_account_replication_type = "RAGRS"
+
+#
+# Azure devops
+#
+azdoa_image_name = "cstar-u-azdo-agent-ubuntu2204-image-v1"
+

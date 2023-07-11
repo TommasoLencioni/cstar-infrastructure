@@ -1,11 +1,13 @@
 # general
-prefix          = "cstar"
-env_short       = "u"
-env             = "uat"
-domain          = "uat01"
-location        = "westeurope"
-location_string = "West Europe"
-location_short  = "weu"
+prefix              = "cstar"
+env_short           = "u"
+env                 = "uat"
+domain              = "uat01"
+location            = "westeurope"
+location_string     = "West Europe"
+location_short      = "weu"
+location_pair_short = "neu"
+location_pair       = "northeurope"
 
 tags = {
   CreatedBy   = "Terraform"
@@ -41,7 +43,7 @@ public_ip_aksoutbound_name = "cstar-u-weu-uat01-aksoutbound-pip-1"
 aks_enabled                 = true
 aks_private_cluster_enabled = true
 aks_alerts_enabled          = false
-aks_kubernetes_version      = "1.23.8"
+aks_kubernetes_version      = "1.24.6"
 aks_system_node_pool = {
   name            = "cstuat01sys",
   vm_size         = "Standard_D2ds_v5",

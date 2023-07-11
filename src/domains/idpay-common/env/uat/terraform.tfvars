@@ -34,9 +34,9 @@ rtd_keyvault = {
   resource_group = "cstar-u-rtd-sec-rg"
 }
 
-cosmos_mongo_db_params = {
+cosmos_mongo_account_params = {
   enabled      = true
-  capabilities = ["EnableMongo", "EnableServerless"]
+  capabilities = ["EnableMongo", "DisableRateLimitingResponses"]
   offer_type   = "Standard"
   consistency_policy = {
     consistency_level       = "Strong"
@@ -48,19 +48,17 @@ cosmos_mongo_db_params = {
   enable_free_tier                 = false
 
   additional_geo_locations          = []
-  private_endpoint_enabled          = false
+  private_endpoint_enabled          = true
   public_network_access_enabled     = true
-  is_virtual_network_filter_enabled = false
+  is_virtual_network_filter_enabled = true
 
   backup_continuous_enabled = false
 
 }
 
-cosmos_mongo_db_transaction_params = {
-  enable_serverless  = true
-  enable_autoscaling = true
-  max_throughput     = 1000
-  throughput         = 1000
+cosmos_mongo_db_idpay_params = {
+  throughput     = null
+  max_throughput = 4000
 }
 
 service_bus_namespace = {
@@ -223,7 +221,7 @@ eventhubs_idpay_00 = [
 eventhubs_idpay_01 = [
   {
     name              = "idpay-transaction"
-    partitions        = 3
+    partitions        = 16
     message_retention = 1
     consumers         = ["idpay-transaction-consumer-group", "idpay-transaction-wallet-consumer-group", "idpay-rewards-notification-transaction-group", "idpay-initiative-rewards-statistics-group"]
     keys = [
@@ -303,7 +301,7 @@ eventhubs_idpay_01 = [
   },
   {
     name              = "idpay-transaction-user-id-splitter"
-    partitions        = 3
+    partitions        = 16
     message_retention = 1
     consumers         = ["idpay-reward-calculator-consumer-group"]
     keys = [
@@ -389,3 +387,13 @@ enable = {
     eventhub_idpay_00 = true
   }
 }
+
+### AKS VNet
+aks_vnet = {
+  name           = "cstar-u-weu-uat01-vnet"
+  resource_group = "cstar-u-weu-uat01-vnet-rg"
+  subnet         = "cstar-u-weu-uat01-aks-snet"
+}
+
+
+redis_public_network_access_enabled = true

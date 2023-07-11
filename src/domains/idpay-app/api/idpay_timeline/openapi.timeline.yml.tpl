@@ -116,12 +116,7 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - $ref: '#/components/schemas/TransactionDetailDTO'
-                  - $ref: '#/components/schemas/InstrumentOperationDTO'
-                  - $ref: '#/components/schemas/IbanOperationDTO'
-                  - $ref: '#/components/schemas/OnboardingOperationDTO'
-                  - $ref: '#/components/schemas/RefundOperationDTO'
+                $ref: '#/components/schemas/OperationDTO'
         '401':
           description: Authentication failed
           content:
@@ -160,11 +155,24 @@ paths:
                 message: string
 components:
   schemas:
+    OperationDTO:
+      oneOf:
+        - $ref: '#/components/schemas/TransactionDetailDTO'
+        - $ref: '#/components/schemas/InstrumentOperationDTO'
+        - $ref: '#/components/schemas/IbanOperationDTO'
+        - $ref: '#/components/schemas/OnboardingOperationDTO'
+        - $ref: '#/components/schemas/RefundDetailDTO'
+        - $ref: '#/components/schemas/SuspendOperationDTO'
+        - $ref: '#/components/schemas/ReadmittedOperationDTO'
     TimelineDTO:
       type: object
       required:
         - lastUpdate
         - operationList
+        - pageNo
+        - pageSize
+        - totalElements
+        - totalPages
       properties:
         lastUpdate:
           type: string
@@ -175,6 +183,18 @@ components:
           items:
             $ref: '#/components/schemas/OperationListDTO'
           description: the list of transactions and operations of an initiative of a citizen
+        pageNo:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
     OperationListDTO:
       description: Complex type for items in the operation list
       oneOf:
@@ -184,6 +204,8 @@ components:
         - $ref: '#/components/schemas/IbanOperationDTO'
         - $ref: '#/components/schemas/OnboardingOperationDTO'
         - $ref: '#/components/schemas/RefundOperationDTO'
+        - $ref: '#/components/schemas/SuspendOperationDTO'
+        - $ref: '#/components/schemas/ReadmittedOperationDTO'
     RejectedInstrumentOperationDTO:
       type: object
       required:
@@ -191,6 +213,7 @@ components:
         - operationType
         - operationDate
         - brandLogo
+        - brand
         - maskedPan
         - channel
       properties:
@@ -206,6 +229,8 @@ components:
           format: date-time
         brandLogo:
           type: string
+        brand:
+          type: string
         instrumentId:
           type: string
         maskedPan:
@@ -218,13 +243,8 @@ components:
         - operationId
         - operationType
         - operationDate
-        - brandLogo
-        - maskedPan
-        - amount
         - accrued
-        - circuitType
-        - idTrxIssuer
-        - idTrxAcquirer
+        - status
       properties:
         operationId:
           type: string
@@ -233,7 +253,11 @@ components:
             - TRANSACTION
             - REVERSAL
           type: string
+        eventId:
+          type: string
         brandLogo:
+          type: string
+        brand:
           type: string
         maskedPan:
           type: string
@@ -246,10 +270,26 @@ components:
           format: date-time
         circuitType:
           type: string
-          description: '00-> Bancomat, 01->Visa, 02->Mastercard, 03->Amex, 04->JCB, 05->UnionPay, 06->Diners, 07->PostePay, 08->BancomatPay, 09->Satispay, 10->PrivateCircuit'
+          description: >-
+            00-> Bancomat, 01->Visa, 02->Mastercard, 03->Amex, 04->JCB,
+            05->UnionPay, 06->Diners, 07->PostePay, 08->BancomatPay,
+            09->Satispay, 10->PrivateCircuit
         idTrxIssuer:
           type: string
         idTrxAcquirer:
+          type: string
+        status:
+          type: string
+          enum:
+            - AUTHORIZED
+            - REWARDED
+            - CANCELLED
+        channel:
+          type: string
+          enum:
+            - RTD
+            - QRCODE
+        businessName:
           type: string
     InstrumentOperationDTO:
       type: object
@@ -258,6 +298,7 @@ components:
         - operationType
         - operationDate
         - brandLogo
+        - brand
         - maskedPan
         - channel
       properties:
@@ -272,6 +313,8 @@ components:
           type: string
           format: date-time
         brandLogo:
+          type: string
+        brand:
           type: string
         maskedPan:
           type: string
@@ -320,6 +363,96 @@ components:
       required:
         - operationId
         - operationType
+        - eventId
+        - operationDate
+        - amount
+      properties:
+        operationId:
+          type: string
+        eventId:
+          type: string
+        operationType:
+          enum:
+            - PAID_REFUND
+            - REJECTED_REFUND
+          type: string
+        operationDate:
+          type: string
+          format: date-time
+        amount:
+          type: number
+    TransactionOperationDTO:
+      type: object
+      required:
+        - operationId
+        - operationType
+        - operationDate
+        - accrued
+        - status
+      properties:
+        operationId:
+          type: string
+        operationType:
+          enum:
+            - TRANSACTION
+            - REVERSAL
+          type: string
+        eventId:
+          type: string
+        operationDate:
+          type: string
+          format: date-time
+        brandLogo:
+          type: string
+        brand:
+          type: string
+        maskedPan:
+          type: string
+        amount:
+          type: number
+        accrued:
+          type: number
+        circuitType:
+          type: string
+          description: >-
+            00-> Bancomat, 01->Visa, 02->Mastercard, 03->Amex, 04->JCB,
+            05->UnionPay, 06->Diners, 07->PostePay, 08->BancomatPay,
+            09->Satispay, 10->PrivateCircuit
+        status:
+          type: string
+          enum:
+            - AUTHORIZED
+            - REWARDED
+            - CANCELLED
+        channel:
+          type: string
+          enum:
+            - RTD
+            - QRCODE
+        businessName:
+          type: string
+    SuspendOperationDTO:
+      type: object
+      required:
+        - operationId
+        - operationType
+        - operationDate
+      properties:
+        operationId:
+          type: string
+        operationType:
+          enum:
+            - SUSPENDED
+          type: string
+        operationDate:
+          type: string
+          format: date-time
+    RefundDetailDTO:
+      type: object
+      required:
+        - operationId
+        - operationType
+        - eventId
         - operationDate
         - amount
       properties:
@@ -330,41 +463,49 @@ components:
             - PAID_REFUND
             - REJECTED_REFUND
           type: string
+        eventId:
+          type: string
+        iban:
+          type: string
         operationDate:
           type: string
-          format: date
+          format: date-time
         amount:
           type: number
-    TransactionOperationDTO:
+        status:
+          type: string
+        refundType:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        transferDate:
+          type: string
+          format: date
+        userNotificationDate:
+          type: string
+          format: date
+        cro:
+          type: string
+    ReadmittedOperationDTO:
       type: object
       required:
         - operationId
         - operationType
         - operationDate
-        - brandLogo
-        - maskedPan
-        - amount
-        - circuitType
       properties:
         operationId:
           type: string
         operationType:
           enum:
-            - TRANSACTION
-            - REVERSAL
+            - READMITTED
           type: string
         operationDate:
           type: string
           format: date-time
-        brandLogo:
-          type: string
-        maskedPan:
-          type: string
-        amount:
-          type: number
-        circuitType:
-          type: string
-          description: '00-> Bancomat, 01->Visa, 02->Mastercard, 03->Amex, 04->JCB, 05->UnionPay, 06->Diners, 07->PostePay, 08->BancomatPay, 09->Satispay, 10->PrivateCircuit'
     ErrorDTO:
       type: object
       required:

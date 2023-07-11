@@ -369,8 +369,8 @@ configmaps_rtdenrolledpaymentinstrument = {
 }
 
 configmaps_rtdproducerenrolledpaymentinstrument = {
-  KAFKA_PARTITION_KEY_EXPRESSION = "headers.partitionKey"
-  KAFKA_PARTITION_COUNT          = 1
+  KAFKA_PARTITION_KEY_EXPRESSION      = "headers.partitionKey"
+  KAFKA_RTD_PI_TO_APP_PARTITION_COUNT = 1
 }
 
 configmaps_rtdpieventprocessor = {
@@ -455,6 +455,7 @@ secrets_to_be_read_from_kv = [
   "evh-bpd-winner-outcome-award-winner-integration-key",
   "evh-rtd-trx-bpd-payment-instrument-key",
   "evh-rtd-trx-rtd-csv-connector-key",
+  "bpd-notificator-sftp-user",
   "notification-sftp-private-key",
   "notification-service-notify-winners-public-key",
   "notification-sftp-password",
@@ -462,20 +463,8 @@ secrets_to_be_read_from_kv = [
   "storageaccount-cstarblob-key",
   "url-backend-io-token-value",
   # FA
-  "evh-fa-trx-customer-fa-trx-customer-consumer-key-fa-01",
-  "evh-fa-trx-merchant-fa-trx-merchant-producer-key-fa-01",
   "evh-rtd-trx-rtd-trx-consumer-key",
-  "evh-fa-trx-customer-fa-trx-customer-producer-key-fa-01",
-  "evh-fa-trx-fa-trx-consumer-key-fa-01",
-  "evh-fa-trx-error-fa-trx-error-producer-key-fa-01",
-  "evh-fa-trx-merchant-fa-trx-merchant-consumer-key-fa-01",
-  "evh-fa-trx-fa-trx-producer-key-fa-01",
-  "evh-fa-trx-error-fa-trx-error-consumer-key-fa-01",
-  "evh-fa-trx-fa-trx-producer-key-fa-01",
-  "evh-fa-trx-customer-fa-trx-customer-producer-key-fa-01",
   "evh-rtd-trx-rtd-trx-producer-key",
-  "evh-fa-trx-payment-instrument-fa-trx-payment-instrument-consumer-key-fa-01",
-  "evh-fa-trx-payment-instrument-fa-trx-payment-instrument-producer-key-fa-01",
   "evh-rtd-platform-events-rtd-platform-events-sub-key",
   "rtdtransactionfilter-hpan-service-api-key",
   "rtdtransactionfilter-hpan-service-key-store-password",
@@ -488,9 +477,7 @@ secrets_to_be_read_from_kv = [
   "cstarblobstorage-private-key-passphrase",
   "rtd-internal-api-product-subscription-key",
   "mongo-db-connection-uri",
-  "evh-rtd-enrolled-pi-rtd-enrolled-pi-consumer-policy-key",
-  "evh-tkm-write-update-token-tkm-write-update-token-sub-key",
-  "evh-rtd-revoked-pi-rtd-revoked-pi-producer-policy-key"
+  "evh-tkm-write-update-token-tkm-write-update-token-sub-key"
 ]
 
 secrets_from_rtd_domain_kv = {
@@ -521,10 +508,4 @@ enable = {
   fa = {
     api = true
   }
-}
-
-eventhub_enrolled_pi = {
-  name                = "rtd-enrolled-pi"
-  namespace_name      = "cstar-d-evh-ns"
-  resource_group_name = "cstar-d-msg-rg"
 }

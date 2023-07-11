@@ -25,6 +25,8 @@ log_analytics_workspace_resource_group_name = "cstar-u-monitor-rg"
 
 aks_name                = "cstar-u-weu-uat01-aks"
 aks_resource_group_name = "cstar-u-weu-uat01-aks-rg"
+aks_vmss_name           = "aks-cstuat01usr-39999986-vmss"
+aks_cluster_domain_name = "uat01"
 
 ingress_load_balancer_ip       = "10.11.100.250"
 ingress_load_balancer_hostname = "uat01.idpay.internal.uat.cstar.pagopa.it"
@@ -45,20 +47,11 @@ enable = {
   }
 }
 
-# Enrolled payment instrument event hub
-eventhub_pim = {
-  enrolled_pi_eventhub  = "rtd-enrolled-pi"
-  revoked_pi_eventhub   = "rtd-revoked-pi"
-  namespace_enrolled_pi = "cstar-u-evh-ns"
-  namespace_revoked_pi  = "cstar-u-evh-ns"
-  resource_group_name   = "cstar-u-msg-rg"
-}
-
 #
 # PDV
 #
 pdv_tokenizer_url = "https://api.uat.tokenizer.pdv.pagopa.it/tokenizer/v1"
-
+pdv_timeout_sec   = 5
 #
 # PM
 #
@@ -74,6 +67,16 @@ checkiban_base_url = "https://bankingservices-sandbox.pagopa.it"
 # SelfCare API
 #
 selc_base_url = "https://api.uat.selfcare.pagopa.it"
+
+#
+# BE IO API
+#
+io_backend_base_url = "https://api.io.italia.it" #"https://api-io.uat.cstar.pagopa.it/idpay/mock"
+
+#
+# ONE TRUST API
+#
+one_trust_privacynotice_base_url = "https://app-de.onetrust.com/api/privacynotice/v2"
 
 #
 # TLS Checker
@@ -99,3 +102,7 @@ reverse_proxy_rtd = "10.1.0.250"
 # SMTP Server
 #
 mail_server_host = "smtp.ethereal.email"
+
+idpay_mocked_merchant_enable       = true
+idpay_mocked_acquirer_apim_user_id = "rtd-uat-acquirer-pagopa-it"
+idpay_alert_enabled                = true

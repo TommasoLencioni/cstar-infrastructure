@@ -20,6 +20,13 @@ resource "azurerm_data_factory" "data_factory" {
   tags = var.tags
 }
 
+resource "azurerm_data_factory_integration_runtime_azure" "autoresolve" {
+  name                    = "AutoResolveIntegrationRuntime"
+  data_factory_id         = azurerm_data_factory.data_factory.id
+  location                = "AutoResolve"
+  virtual_network_enabled = true
+}
+
 resource "azurerm_private_endpoint" "data_factory_pe" {
 
   name                = format("%s-pe", azurerm_data_factory.data_factory.name)
@@ -58,12 +65,24 @@ resource "azurerm_data_factory_managed_private_endpoint" "managed_pe" {
   for_each = tomap(
     {
       (data.azurerm_storage_account.blobstorage_account.id) = "blob",
-      (data.azurerm_cosmosdb_account.cosmosdb_account.id)   = "MongoDB"
+      (module.cosmosdb_account_mongodb.id)                  = "MongoDB"
     }
   )
+
   name               = replace(format("%s-%s-mng-private-endpoint", azurerm_data_factory.data_factory.name, substr(sha256(each.key), 0, 3)), "-", "_")
   data_factory_id    = azurerm_data_factory.data_factory.id
   target_resource_id = each.key
   subresource_name   = each.value
+
+  lifecycle {
+    ignore_changes = [
+      fqdns
+    ]
+  }
 }
 
+resource "azurerm_role_assignment" "adf_data_contributor_role_on_sa" {
+  scope                = data.azurerm_storage_account.blobstorage_account.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_data_factory.data_factory.identity[0].principal_id
+}

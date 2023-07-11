@@ -25,16 +25,23 @@ log_analytics_workspace_resource_group_name = "cstar-d-monitor-rg"
 
 aks_name                = "cstar-d-weu-dev01-aks"
 aks_resource_group_name = "cstar-d-weu-dev01-aks-rg"
+aks_cluster_domain_name = "dev01"
 
 ingress_load_balancer_ip       = "10.11.100.250"
 ingress_load_balancer_hostname = "dev01.rtd.internal.dev.cstar.pagopa.it"
 reverse_proxy_be_io            = "10.1.0.250"
+reverse_proxy_ip_old_k8s       = "10.1.0.250"
 
 #
 # Dns
 #
 external_domain          = "pagopa.it"
 dns_zone_internal_prefix = "internal.dev.cstar"
+
+#
+# External references
+#
+pagopa_platform_url = "https://api.dev.platform.pagopa.it"
 
 #
 # Features flags
@@ -47,14 +54,27 @@ enable = {
   file_register                       = true
   enrolled_payment_instrument         = true
   mongodb_storage                     = true
+  file_reporter                       = true
+  payment_instrument                  = true
+  exporter                            = true
+  alternative_gateway                 = true
+  api_payment_instrument              = true
+  tkm_integration                     = false
+  pm_integration                      = true
+  hashed_pans_container               = true
+  batch_service_api                   = true
+  tae_api                             = true
+  tae_blob_containers                 = true
+  sender_auth                         = true
+  csv_transaction_apis                = true
+  mock_io_api                         = true
 }
 
 #
 # Hashpan generation pipeline related variables
 #
 hpan_blob_storage_container_name = {
-  hpan     = "cstar-hashed-pans"
-  hpan_par = "cstar-hashed-pans-par"
+  hpan = "cstar-hashed-pans"
 }
 enable_hpan_pipeline_periodic_trigger     = false
 enable_hpan_par_pipeline_periodic_trigger = false
@@ -77,7 +97,7 @@ event_hub_hubs = [
   {
     name       = "rtd-pi-to-app"
     retention  = 1
-    partitions = 1
+    partitions = 4
     consumers = [
       "rtd-pi-to-app-consumer-group"
     ]
@@ -99,7 +119,7 @@ event_hub_hubs = [
   {
     name       = "rtd-pi-from-app"
     retention  = 1
-    partitions = 1
+    partitions = 4
     consumers = [
       "rtd-pi-from-app-consumer-group"
     ]
@@ -121,7 +141,7 @@ event_hub_hubs = [
   {
     name       = "rtd-split-by-pi"
     retention  = 1
-    partitions = 1
+    partitions = 4
     consumers = [
       "rtd-split-by-pi-consumer-group"
     ]
@@ -161,6 +181,50 @@ event_hub_hubs = [
         manage = false
       }
     ]
+  },
+  {
+    name       = "rtd-dlq-trx"
+    retention  = 1
+    partitions = 1
+    consumers = [
+      "rtd-ingestor-dlq-consumer-group"
+    ]
+    policies = [
+      {
+        name   = "rtd-dlq-trx-consumer-policy"
+        listen = true
+        send   = false
+        manage = false
+      },
+      {
+        name   = "rtd-dlq-trx-producer-policy"
+        listen = false
+        send   = true
+        manage = false
+      }
+    ]
+  },
+  {
+    name       = "migration-pi"
+    retention  = 1
+    partitions = 1
+    consumers = [
+      "migration-pi-consumer-group"
+    ]
+    policies = [
+      {
+        name   = "migration-pi-consumer-policy"
+        listen = true
+        send   = false
+        manage = false
+      },
+      {
+        name   = "migration-pi-producer-policy"
+        listen = false
+        send   = true
+        manage = false
+      }
+    ]
   }
 ]
 
@@ -168,11 +232,11 @@ event_hub_hubs = [
 # Config maps
 #
 configmap_rtdsplitbypiproducer = {
-  KAFKA_RTD_SPLIT_PARTITION_COUNT = 1
+  KAFKA_RTD_SPLIT_PARTITION_COUNT = 4
 }
 
 configmap_rtdpitoappproducer = {
-  KAFKA_RTD_PI_TO_APP_PARTITION_COUNT = 1
+  KAFKA_RTD_PI_TO_APP_PARTITION_COUNT = 4
 }
 
 configmaps_rtdsenderauth = {
@@ -194,6 +258,11 @@ configmaps_rtdenrolledpaymentinstrument = {
   BASEURL_TOKEN_FINDER                                   = "https://api.dev.platform.pagopa.it/tkm/tkmcardmanager/v1/"
 }
 
+configmaps_rtdingestor = {
+  APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL      = "INFO"
+  APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED = "false"
+}
+
 configmaps_rtdfileregister = {
   APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL      = "INFO"
   APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED = "false"
@@ -202,6 +271,42 @@ configmaps_rtdfileregister = {
 configmaps_rtddecrypter = {
   ENABLE_CHUNK_UPLOAD                                    = true
   SPLITTER_LINE_THRESHOLD                                = 2000000
-  APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL      = "OFF"
+  APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL      = "INFO"
   APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED = "false"
 }
+
+configmaps_rtdfilereporter = {
+  APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL      = "INFO"
+  APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED = "false"
+}
+
+
+configmaps_rtdpaymentinstrument = {
+  APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL      = "INFO"
+  APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED = "false"
+}
+
+configmaps_rtdexporter = {
+  APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL      = "INFO"
+  APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED = "false"
+}
+
+configmaps_rtdalternativegateway = {
+  APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL      = "INFO"
+  APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED = "false"
+}
+
+# See cidr_subnet_k8s
+k8s_ip_filter_range = {
+  from = "10.1.0.1"
+  to   = "10.1.127.254"
+}
+
+k8s_ip_filter_range_aks = {
+  from = "10.11.0.1"
+  to   = "10.11.127.254"
+}
+
+pm_backend_url = "https://api.dev.platform.pagopa.it"
+
+batch_service_last_supported_version = "1.3.2"

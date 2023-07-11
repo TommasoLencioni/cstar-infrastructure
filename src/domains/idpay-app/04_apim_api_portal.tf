@@ -3,7 +3,7 @@
 #
 
 module "idpay_api_portal_product" {
-  source = "git::https://github.com/pagopa/azurerm.git//api_management_product?ref=v2.18.2"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//api_management_product?ref=v6.15.2"
 
   product_id   = "idpay_api_portal_product"
   display_name = "IDPAY_APP_PORTAL_PRODUCT"
@@ -31,7 +31,7 @@ module "idpay_api_portal_product" {
 
 ## IDPAY Welfare Portal User Permission API ##
 module "idpay_permission_portal" {
-  source = "git::https://github.com/pagopa/azurerm.git//api_management_api?ref=v2.18.2"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//api_management_api?ref=v6.15.2"
 
   name                = "${var.env_short}-idpay-portal-permission"
   api_management_name = data.azurerm_api_management.apim_core.name
@@ -45,7 +45,7 @@ module "idpay_permission_portal" {
   service_url = "http://${var.ingress_load_balancer_hostname}/idpayportalwelfarebackendrolepermission/idpay/welfare"
 
   content_format = "openapi"
-  content_value  = file("./api/idpay_role_permission/openapi.permission.yml")
+  content_value  = file("./api/idpay_role_permission/openapi.role-permission.yml")
 
   xml_content = file("./api/base_policy.xml")
 
@@ -60,13 +60,13 @@ module "idpay_permission_portal" {
       })
     },
     {
-      operation_id = "saveConsent"
+      operation_id = "savePortalConsent"
       xml_content = templatefile("./api/idpay_role_permission/consent-policy.xml.tpl", {
         ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
       })
     },
     {
-      operation_id = "retrieveConsent"
+      operation_id = "getPortalConsent"
       xml_content = templatefile("./api/idpay_role_permission/consent-policy.xml.tpl", {
         ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
       })
@@ -77,7 +77,7 @@ module "idpay_permission_portal" {
 
 ## IDPAY Welfare Portal Initiative API ##
 module "idpay_initiative_portal" {
-  source = "git::https://github.com/pagopa/azurerm.git//api_management_api?ref=v2.18.2"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//api_management_api?ref=v6.15.2"
 
   name                = "${var.env_short}-idpay-initiative"
   api_management_name = data.azurerm_api_management.apim_core.name
@@ -99,6 +99,13 @@ module "idpay_initiative_portal" {
   subscription_required = false
 
   api_operation_policies = [
+    {
+      operation_id = "getListOfOrganization"
+
+      xml_content = templatefile("./api/idpay_initiative/get-organization-list.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+      })
+    },
     {
       operation_id = "getInitativeSummary"
 
@@ -211,6 +218,24 @@ module "idpay_initiative_portal" {
         ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
       })
     },
+    {
+      operation_id = "suspendUser"
+
+      xml_content = templatefile("./api/idpay_initiative/put-initiative-suspension.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+        pdv_timeout_sec                = var.pdv_timeout_sec
+        pdv_tokenizer_url              = var.pdv_tokenizer_url
+      })
+    },
+    {
+      operation_id = "readmitUser"
+
+      xml_content = templatefile("./api/idpay_initiative/put-initiative-readmission.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+        pdv_timeout_sec                = var.pdv_timeout_sec
+        pdv_tokenizer_url              = var.pdv_tokenizer_url
+      })
+    },
     //CONFIG
     {
       operation_id = "getBeneficiaryConfigRules"
@@ -307,15 +332,140 @@ module "idpay_initiative_portal" {
       xml_content = templatefile("./api/idpay_initiative/get-disp-errors.xml.tpl", {
         ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
       })
+    },
+    //BENEFICIARY DETAIL
+    {
+      operation_id = "getIban"
+
+      xml_content = templatefile("./api/idpay_initiative/get-beneficiary-iban.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+        pdv_timeout_sec                = var.pdv_timeout_sec
+        pdv_tokenizer_url              = var.pdv_tokenizer_url
+      })
+    },
+    {
+      operation_id = "getTimeline"
+
+      xml_content = templatefile("./api/idpay_initiative/get-beneficiary-timeline.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+        pdv_timeout_sec                = var.pdv_timeout_sec
+        pdv_tokenizer_url              = var.pdv_tokenizer_url
+      })
+    },
+    {
+      operation_id = "getTimelineDetail"
+
+      xml_content = templatefile("./api/idpay_initiative/get-beneficiary-timeline-detail.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+        pdv_timeout_sec                = var.pdv_timeout_sec
+        pdv_tokenizer_url              = var.pdv_tokenizer_url
+      })
+    },
+    {
+      operation_id = "getWalletDetail"
+
+      xml_content = templatefile("./api/idpay_initiative/get-beneficiary-wallet.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+        pdv_timeout_sec                = var.pdv_timeout_sec
+        pdv_tokenizer_url              = var.pdv_tokenizer_url
+      })
+    },
+    {
+      operation_id = "getBeneficiaryOnboardingStatus"
+
+      xml_content = templatefile("./api/idpay_initiative/get-beneficiary-onboarding-status.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+        pdv_timeout_sec                = var.pdv_timeout_sec
+        pdv_tokenizer_url              = var.pdv_tokenizer_url
+      })
+    },
+    {
+      operation_id = "getFamilyComposition"
+
+      xml_content = templatefile("./api/idpay_initiative/get-beneficiary-onboarding-family-status.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+        pdv_timeout_sec                = var.pdv_timeout_sec
+        pdv_tokenizer_url              = var.pdv_tokenizer_url
+      })
+    },
+    {
+      operation_id = "getInstrumentList"
+
+      xml_content = templatefile("./api/idpay_initiative/get-beneficiary-instruments.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+        pdv_timeout_sec                = var.pdv_timeout_sec
+        pdv_tokenizer_url              = var.pdv_tokenizer_url
+      })
+    },
+    //REFUND DETAIL
+    {
+      operation_id = "getExportSummary"
+
+      xml_content = templatefile("./api/idpay_initiative/get-refund-export-summary.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+      })
+    },
+    {
+      operation_id = "getExportRefundsListPaged"
+
+      xml_content = templatefile("./api/idpay_initiative/get-refund-list.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+      })
+    },
+    {
+      operation_id = "getRefundDetail"
+
+      xml_content = templatefile("./api/idpay_initiative/get-refund-detail.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+        pdv_timeout_sec                = var.pdv_timeout_sec
+        pdv_tokenizer_url              = var.pdv_tokenizer_url
+        pdv_retry_count                = var.pdv_retry_count
+        pdv_retry_interval             = var.pdv_retry_interval
+        pdv_retry_max_interval         = var.pdv_retry_max_interval
+        pdv_retry_delta                = var.pdv_retry_delta
+      })
+    },
+    //PORTAL TOKEN
+    {
+      operation_id = "getPagoPaAdminToken"
+
+      xml_content = templatefile("./api/idpay_initiative/idpay_portal_token/jwt_idpay_portal_token.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname,
+        jwt_cert_signing_thumbprint    = azurerm_api_management_certificate.idpay_token_exchange_cert_jwt.thumbprint
+      })
     }
   ]
 
 }
 
+/*
+##API used for generate IdPay Product Token test
+resource "azurerm_api_management_api_operation" "idpay_portal_token" {
+  operation_id        = "idpay_portal_token"
+  api_name            = module.idpay_initiative_portal.name
+  api_management_name = data.azurerm_api_management.apim_core.name
+  resource_group_name = data.azurerm_resource_group.apim_rg.name
+  display_name        = "IDPAY Token"
+  method              = "POST"
+  url_template        = "/token"
+  description         = "Endpoint which create IdPay token"
+}
+resource "azurerm_api_management_api_operation_policy" "idpay_portal_token_policy" {
+  api_name            = azurerm_api_management_api_operation.idpay_portal_token.api_name
+  api_management_name = azurerm_api_management_api_operation.idpay_portal_token.api_management_name
+  resource_group_name = azurerm_api_management_api_operation.idpay_portal_token.resource_group_name
+  operation_id        = azurerm_api_management_api_operation.idpay_portal_token.operation_id
+
+  xml_content = templatefile("./api/idpay_initiative/idpay_portal_token/jwt_idpay_portal_token.xml.tpl", {
+    ingress_load_balancer_hostname = var.ingress_load_balancer_hostname,
+    jwt_cert_signing_thumbprint    = azurerm_api_management_certificate.idpay_token_exchange_cert_jwt.thumbprint
+  })
+}
+*/
 
 ## IDPAY Welfare Portal Group API ##
 module "idpay_group_portal" {
-  source = "git::https://github.com/pagopa/azurerm.git//api_management_api?ref=v2.18.2"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//api_management_api?ref=v6.15.2"
 
   name                = "${var.env_short}-idpay-group"
   api_management_name = data.azurerm_api_management.apim_core.name
@@ -355,9 +505,58 @@ module "idpay_group_portal" {
 
 }
 
+## IDPAY Merchant API ##
+module "idpay_merchant_portal" {
+  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//api_management_api?ref=v6.15.2"
+
+  name                = "${var.env_short}-idpay-merchant"
+  api_management_name = data.azurerm_api_management.apim_core.name
+  resource_group_name = data.azurerm_resource_group.apim_rg.name
+
+  description  = "IDPAY Merchant"
+  display_name = "IDPAY Merchant API"
+  path         = "idpay/merchant"
+  protocols    = ["https"]
+
+  service_url = "http://${var.ingress_load_balancer_hostname}/idpaymerchant/"
+
+  content_format = "openapi"
+  content_value  = file("./api/idpay_merchant/openapi.merchant.yml")
+
+  xml_content = file("./api/base_policy.xml")
+
+  product_ids           = [module.idpay_api_portal_product.product_id]
+  subscription_required = false
+
+  api_operation_policies = [
+    {
+      operation_id = "getMerchantList"
+
+      xml_content = templatefile("./api/idpay_merchant/get-merchant-list-policy.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+      })
+    },
+    {
+      operation_id = "getMerchantDetail"
+
+      xml_content = templatefile("./api/idpay_merchant/get-merchant-detail-policy.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+      })
+    },
+    {
+      operation_id = "uploadMerchantList"
+
+      xml_content = templatefile("./api/idpay_merchant/put-merchant-upload.xml.tpl", {
+        ingress_load_balancer_hostname = var.ingress_load_balancer_hostname
+      })
+    }
+  ]
+
+}
+
 ## IDPAY Welfare Portal Email API ##
 module "idpay_notification_email_api" {
-  source = "git::https://github.com/pagopa/azurerm.git//api_management_api?ref=v2.18.2"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//api_management_api?ref=v6.15.2"
 
   name                = "${var.env_short}-idpay-email"
   api_management_name = data.azurerm_api_management.apim_core.name

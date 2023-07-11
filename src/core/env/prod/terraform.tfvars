@@ -4,6 +4,7 @@ location_pair       = "northeurope"
 location_short      = "weu"
 location_pair_short = "neu"
 env_short           = "p"
+env                 = "prod"
 
 tags = {
   CreatedBy   = "Terraform"
@@ -15,6 +16,7 @@ tags = {
 
 apim_notification_sender_email = "info@pagopa.it"
 cstar_support_email            = "cstar@assistenza.pagopa.it"
+pgp_put_limit_bytes            = 524288000 # 500MB
 apim_publisher_name            = "PagoPA Centro Stella PROD"
 apim_sku                       = "Premium_1"
 
@@ -41,12 +43,17 @@ cidr_subnet_storage_account  = ["10.1.137.0/24"]
 cidr_subnet_cosmos_mongodb   = ["10.1.138.0/24"]
 cidr_subnet_private_endpoint = ["10.1.200.0/23"]
 
-
 # integration vnet
 # https://www.davidc.net/sites/default/subnets/subnets.html?network=10.230.7.0&mask=24&division=7.31
 cidr_integration_vnet = ["10.230.6.0/24"]
 cidr_subnet_apim      = ["10.230.6.0/26"]
 cidr_subnet_eventhub  = ["10.230.6.64/26"]
+
+#
+# Pair VNET
+#
+cidr_pair_vnet                = ["10.101.0.0/16"]
+cidr_subnet_pair_dnsforwarder = ["10.101.134.0/29"]
 
 #
 # ⛴ AKS Vnet
@@ -265,7 +272,7 @@ azdo_sp_tls_cert_enabled            = false
 
 sftp_account_replication_type = "GRS"
 sftp_enable_private_endpoint  = true
-sftp_ip_rules                 = ["217.175.54.31", "217.175.48.25"]
+sftp_ip_rules                 = ["217.175.54.31", "217.175.48.25", "89.119.254.64", "78.6.225.228"]
 
 db_sku_name                     = "GP_Gen5_2"
 db_enable_replica               = false
@@ -361,39 +368,7 @@ dns_zone_prefix         = "cstar"
 dns_zone_welfare_prefix = "welfare"
 
 cosmos_mongo_db_params = {
-  enabled      = true
-  kind         = "MongoDB"
-  capabilities = ["EnableMongo"]
-  offer_type   = "Standard"
-  consistency_policy = {
-    consistency_level       = "Strong"
-    max_interval_in_seconds = 5
-    max_staleness_prefix    = 100
-  }
-  server_version                   = "4.0"
-  main_geo_location_zone_redundant = true
-  enable_free_tier                 = false
-
-  private_endpoint_enabled      = true
-  public_network_access_enabled = true
-  additional_geo_locations = [
-    {
-      location          = "northeurope"
-      failover_priority = 1
-      zone_redundant    = true
-    }
-  ]
-
-  is_virtual_network_filter_enabled = true
-
-  backup_continuous_enabled = true
-}
-
-cosmos_mongo_db_transaction_params = {
-  enable_serverless  = true
-  enable_autoscaling = true
-  max_throughput     = 10000
-  throughput         = 2000
+  enabled = true
 }
 
 dexp_params = {
@@ -665,26 +640,6 @@ eventhubs = [
     ]
   },
   {
-    name              = "rtd-enrolled-pi"
-    partitions        = 1
-    message_retention = 1
-    consumers         = ["rtd-enrolled-payment-instrument-consumer-group"]
-    keys = [
-      {
-        name   = "rtd-enrolled-pi-consumer-policy"
-        listen = true
-        send   = true
-        manage = false
-      },
-      {
-        name   = "rtd-enrolled-pi-producer-policy"
-        listen = false
-        send   = true
-        manage = false
-      }
-    ]
-  },
-  {
     name              = "tkm-write-update-token"
     partitions        = 1
     message_retention = 1
@@ -717,130 +672,6 @@ eventhubs = [
   }
 ]
 
-
-eventhubs_fa = [
-  {
-    name              = "fa-trx-error"
-    partitions        = 1
-    message_retention = 7
-    consumers         = ["fa-trx-error-consumer-group"]
-    keys = [
-      {
-        name   = "fa-trx-error-producer"
-        listen = false
-        send   = true
-        manage = false
-      },
-      {
-        name   = "fa-trx-error-consumer"
-        listen = true
-        send   = false
-        manage = false
-      }
-    ]
-  },
-  {
-    name              = "fa-trx"
-    partitions        = 1
-    message_retention = 7
-    consumers         = ["fa-trx-consumer-group"]
-    keys = [
-      {
-        name   = "fa-trx-producer"
-        listen = false
-        send   = true
-        manage = false
-      },
-      {
-        name   = "fa-trx-consumer"
-        listen = true
-        send   = false
-        manage = false
-      }
-    ]
-  },
-  {
-    name              = "fa-trx-merchant"
-    partitions        = 1
-    message_retention = 7
-    consumers         = ["fa-trx-merchant-consumer-group"]
-    keys = [
-      {
-        name   = "fa-trx-merchant-producer"
-        listen = false
-        send   = true
-        manage = false
-      },
-      {
-        name   = "fa-trx-merchant-consumer"
-        listen = true
-        send   = false
-        manage = false
-      }
-    ]
-  },
-  {
-    name              = "fa-trx-customer"
-    partitions        = 1
-    message_retention = 7
-    consumers         = ["fa-trx-customer-consumer-group"]
-    keys = [
-      {
-        name   = "fa-trx-customer-producer"
-        listen = false
-        send   = true
-        manage = false
-      },
-      {
-        name   = "fa-trx-customer-consumer"
-        listen = true
-        send   = false
-        manage = false
-      }
-    ]
-  },
-  {
-    name              = "fa-trx-payment-instrument"
-    partitions        = 1
-    message_retention = 7
-    consumers         = ["fa-trx-payment-instrument-consumer-group"]
-    keys = [
-      {
-        name   = "fa-trx-payment-instrument-producer"
-        listen = false
-        send   = true
-        manage = false
-      },
-      {
-        name   = "fa-trx-payment-instrument-consumer"
-        listen = true
-        send   = false
-        manage = false
-      }
-    ]
-  },
-  { // to be removed from here, temporary allocated here due to limit of 10 queue in rtd namespace
-    name              = "rtd-revoked-pi"
-    partitions        = 1
-    message_retention = 1
-    consumers         = ["rtd-revoked-payment-instrument-consumer-group"]
-    keys = [
-      {
-        name   = "rtd-revoked-pi-consumer-policy"
-        listen = true
-        send   = false
-        manage = false
-      },
-      {
-        name   = "rtd-revoked-pi-producer-policy"
-        listen = false
-        send   = true
-        manage = false
-      }
-    ]
-  },
-]
-
 external_domain = "pagopa.it"
 
 pm_backend_url      = "https://api.platform.pagopa.it"
@@ -849,17 +680,6 @@ pagopa_platform_url = "https://api.platform.pagopa.it"
 pm_ip_filter_range = {
   from = "10.230.1.1"
   to   = "10.230.1.255"
-}
-
-# See cidr_subnet_k8s
-k8s_ip_filter_range = {
-  from = "10.1.0.1"
-  to   = "10.1.127.254"
-}
-
-k8s_ip_filter_range_aks = {
-  from = "10.11.0.1"
-  to   = "10.11.127.254"
 }
 
 redis_sku_name = "Premium"
@@ -880,6 +700,7 @@ app_gateway_portal_certificate_name     = "portal-cstar-pagopa-it"
 app_gateway_management_certificate_name = "management-cstar-pagopa-it"
 app_gateway_min_capacity                = 1
 app_gateway_max_capacity                = 10
+app_gateway_public_ip_availability_zone = "Zone-Redundant"
 
 lock_enable = true
 
@@ -889,26 +710,25 @@ cdc_api_params = {
   host = "https://api.sogei.it/interop/carta-cultura"
 }
 
-enable_api_fa                              = true
+enable_api_fa                              = false
 enable_blob_storage_event_grid_integration = true
 
 enable = {
+  core = {
+    private_endpoints_subnet = true
+  }
   rtd = {
     blob_storage_event_grid_integration = true
     internal_api                        = true
-    csv_transaction_apis                = true
-    file_register                       = true
     batch_service_api                   = true
-    enrolled_payment_instrument         = true
+    payment_instrument                  = false
     mongodb_storage                     = true
-    sender_auth                         = true
     hashed_pans_container               = true
     pm_wallet_ext_api                   = true
-    pm_integration                      = true
     tkm_integration                     = false
   }
   fa = {
-    api = true
+    api = false
   }
   cdc = {
     api = true
@@ -923,3 +743,11 @@ enable = {
     eventhub_idpay = true
   }
 }
+
+# cstarblobstorage
+cstarblobstorage_account_replication_type = "RAGRS"
+
+#
+# Azure devops
+#
+azdoa_image_name = "cstar-p-azdo-agent-ubuntu2204-image-v1"

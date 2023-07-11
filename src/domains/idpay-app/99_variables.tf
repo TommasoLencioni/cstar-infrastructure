@@ -34,6 +34,11 @@ variable "domain" {
   }
 }
 
+variable "idpay_alert_enabled" {
+  type    = bool
+  default = false
+}
+
 variable "location" {
   type        = string
   description = "One of westeurope, northeurope"
@@ -99,7 +104,11 @@ variable "aks_name" {
 variable "aks_resource_group_name" {
   type        = string
   description = "AKS cluster resource name"
+}
 
+variable "aks_vmss_name" {
+  type        = string
+  description = "AKS nodepool scale set name"
 }
 
 variable "k8s_kube_config_path_prefix" {
@@ -147,21 +156,61 @@ variable "reverse_proxy_be_io" {
   description = "AKS external ip. Also the ingress-nginx-controller external ip. Value known after installing the ingress controller."
 }
 
-variable "eventhub_pim" {
-  type = object({
-    enrolled_pi_eventhub  = string,
-    revoked_pi_eventhub   = string,
-    resource_group_name   = string,
-    namespace_enrolled_pi = string
-    namespace_revoked_pi  = string
-  })
-  description = "Namespace and groupname configuration for enrolled payment instrument eventhub"
+# variable "eventhub_pim" {
+#   type = object({
+#     enrolled_pi_eventhub  = string,
+#     revoked_pi_eventhub   = string,
+#     resource_group_name   = string,
+#     namespace_enrolled_pi = string
+#     namespace_revoked_pi  = string
+#   })
+#   description = "Namespace and groupname configuration for enrolled payment instrument eventhub"
+# }
+
+variable "one_trust_privacynotice_base_url" {
+  type        = string
+  description = "OneTrust PrivacyNotice Base Url"
+}
+
+variable "io_backend_base_url" {
+  type        = string
+  description = "BE IO backend url"
 }
 
 variable "pdv_tokenizer_url" {
   type        = string
   default     = "127.0.0.1"
   description = "PDV uri. Endpoint for encryption of pii information."
+}
+
+variable "pdv_timeout_sec" {
+  type        = number
+  description = "PDV timeout (sec)"
+  default     = 15
+}
+
+variable "pdv_retry_count" {
+  type        = number
+  description = "PDV max retry number"
+  default     = 3
+}
+
+variable "pdv_retry_interval" {
+  type        = number
+  description = "PDV interval between each retry"
+  default     = 5
+}
+
+variable "pdv_retry_max_interval" {
+  type        = number
+  description = "PDV max interval between each retry"
+  default     = 15
+}
+
+variable "pdv_retry_delta" {
+  type        = number
+  description = "PDV delta"
+  default     = 1
 }
 
 variable "checkiban_base_url" {
@@ -234,6 +283,12 @@ variable "storage_advanced_threat_protection" {
   default     = false
 }
 
+variable "storage_public_network_access_enabled" {
+  type        = bool
+  description = "Enable public network access"
+  default     = false
+}
+
 #
 # RTD reverse proxy
 #
@@ -267,6 +322,23 @@ variable "p7m_cert_validity_hours" {
   type    = number
   default = 87600 # 10 year
 
+}
+
+variable "idpay_mocked_merchant_enable" {
+  type        = bool
+  description = "Enable mocked merchant APIs"
+  default     = false
+}
+
+variable "idpay_mocked_acquirer_apim_user_id" {
+  type        = string
+  description = "APIm user id of mocked acquirer"
+  default     = null
+}
+
+variable "aks_cluster_domain_name" {
+  type        = string
+  description = "Name of the aks cluster domain. eg: dev01"
 }
 
 # Mock PDND API

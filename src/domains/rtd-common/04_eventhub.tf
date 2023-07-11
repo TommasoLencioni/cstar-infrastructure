@@ -18,13 +18,13 @@ resource "azurerm_eventhub_namespace" "event_hub_rtd_namespace" {
     default_action = "Deny"
     # list of subnet where eventhub is reachable
     virtual_network_rule {
+      subnet_id = data.azurerm_subnet.eventhub_snet.id
+    }
+    virtual_network_rule {
       subnet_id = data.azurerm_subnet.aks_domain_subnet.id
     }
     virtual_network_rule {
       subnet_id = data.azurerm_subnet.aks_old_subnet.id
-    }
-    virtual_network_rule {
-      subnet_id = data.azurerm_subnet.eventhub_snet.id
     }
     virtual_network_rule {
       subnet_id = data.azurerm_subnet.private_endpoint_snet.id
@@ -55,6 +55,28 @@ resource "azurerm_private_endpoint" "event_hub_rtd_namespace" {
   private_dns_zone_group {
     name                 = format("%s-private-dns-zone-group", azurerm_eventhub_namespace.event_hub_rtd_namespace.name)
     private_dns_zone_ids = concat([], data.azurerm_private_dns_zone.eventhub_private_dns.*.id)
+  }
+}
+
+## Private endpoint to cstar-d-vnet to enable access from VPN
+resource "azurerm_private_endpoint" "evh-cstar-vnet-private-endpoint" {
+  # disabled in PROD
+  count               = var.env_short == "p" ? 0 : 1
+  name                = format("%s-evh-private-endpoint", local.project)
+  location            = var.location
+  resource_group_name = local.vnet_core_resource_group_name
+  subnet_id           = data.azurerm_subnet.private_endpoint_snet.id
+
+  private_dns_zone_group {
+    name                 = data.azurerm_private_dns_zone.eventhub_private_dns.name
+    private_dns_zone_ids = concat([], data.azurerm_private_dns_zone.eventhub_private_dns.*.id)
+  }
+
+  private_service_connection {
+    name                           = format("%s-evh-private-service-connection", local.project)
+    is_manual_connection           = false
+    private_connection_resource_id = azurerm_eventhub_namespace.event_hub_rtd_namespace.id
+    subresource_names              = ["namespace"]
   }
 }
 

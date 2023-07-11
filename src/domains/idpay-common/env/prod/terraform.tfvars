@@ -34,9 +34,9 @@ rtd_keyvault = {
   resource_group = "cstar-p-rtd-sec-rg"
 }
 
-cosmos_mongo_db_params = {
+cosmos_mongo_account_params = {
   enabled      = true
-  capabilities = ["EnableMongo"]
+  capabilities = ["EnableMongo", "DisableRateLimitingResponses"]
   offer_type   = "Standard"
   consistency_policy = {
     consistency_level       = "Strong"
@@ -47,20 +47,23 @@ cosmos_mongo_db_params = {
   main_geo_location_zone_redundant = false
   enable_free_tier                 = false
 
-  additional_geo_locations          = []
-  private_endpoint_enabled          = false
+  additional_geo_locations = [{
+    failover_priority = 1
+    location          = "northeurope"
+    zone_redundant    = false
+    }
+  ]
+  private_endpoint_enabled          = true
   public_network_access_enabled     = true
-  is_virtual_network_filter_enabled = false
+  is_virtual_network_filter_enabled = true
 
-  backup_continuous_enabled = false
+  backup_continuous_enabled = true
 
 }
 
-cosmos_mongo_db_transaction_params = {
-  enable_serverless  = true
-  enable_autoscaling = true
-  max_throughput     = 1000
-  throughput         = 1000
+cosmos_mongo_db_idpay_params = {
+  throughput     = null
+  max_throughput = 4000
 }
 
 service_bus_namespace = {
@@ -410,3 +413,14 @@ ns_dns_records_welfare = [
     "ns4-05.azure-dns.info", ]
   },
 ]
+
+### AKS VNet
+aks_vnet = {
+  name           = "cstar-p-weu-prod01-vnet"
+  resource_group = "cstar-p-weu-prod01-vnet-rg"
+  subnet         = "cstar-p-weu-prod01-aks-snet"
+}
+
+
+idpay_cdn_sa_advanced_threat_protection_enabled = true
+redis_public_network_access_enabled             = true

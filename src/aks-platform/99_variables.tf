@@ -30,13 +30,23 @@ variable "env_short" {
 }
 
 variable "location" {
-  type    = string
-  default = "westeurope"
+  type        = string
+  description = "Location name complete"
+}
+
+variable "location_pair" {
+  type        = string
+  description = "Location pair name complete"
 }
 
 variable "location_short" {
   type        = string
-  description = "Location short like eg: weu, weu.."
+  description = "Location short like eg: weu, neu.."
+}
+
+variable "location_pair_short" {
+  type        = string
+  description = "Location short like eg: weu, neu.."
 }
 
 variable "location_string" {
@@ -454,7 +464,8 @@ variable "aks_system_node_pool" {
     node_count_min  = number,
     node_count_max  = number,
     node_labels     = map(any),
-    node_tags       = map(any)
+    node_tags       = map(any),
+    zones           = optional(list(any), [1, 2, 3])
   })
   description = "AKS node pool system configuration"
 }
@@ -471,6 +482,7 @@ variable "aks_user_node_pool" {
     node_labels     = map(any),
     node_taints     = list(string),
     node_tags       = map(any),
+    zones           = optional(list(any), [1, 2, 3])
   })
   description = "AKS node pool user configuration"
 }

@@ -38,6 +38,9 @@ paths:
                     refunded: 0.01
                     iban: string
                     nInstr: 0
+                    initiativeRewardType: REFUND
+                    logoURL: string
+                    organizationName: string
         '401':
           description: Authentication failed
           content:
@@ -65,6 +68,51 @@ paths:
               example:
                 code: 0
                 message: string
+  '/{initiativeId}/detail':
+    get:
+      tags:
+        - wallet
+      summary: Returns the detail of an initiative
+      operationId: getInitiativeBeneficiaryDetail
+      parameters:
+        - name: initiativeId
+          in: path
+          description: The initiative ID
+          required: true
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          schema:
+            type: string
+            example: it-IT
+            default: it-IT
+          required: true
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitiativeDetailDTO'
+        '404':
+          description: The requested ID was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '429':
+          description: Too many Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '500':
+          description: Server ERROR
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
   '/{initiativeId}':
     get:
       tags:
@@ -93,6 +141,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/InitiativeDTO'
               example:
+                familyId: string
                 initiativeId: string
                 initiativeName: string
                 status: NOT_REFUNDABLE_ONLY_IBAN
@@ -102,6 +151,9 @@ paths:
                 refunded: 0.01
                 iban: string
                 nInstr: 0
+                initiativeRewardType: REFUND
+                logoURL: string
+                organizationName: string
         '401':
           description: Authentication failed
           content:
@@ -482,7 +534,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        '204':
           description: Unsubscribe OK
           content:
             application/json: { }
@@ -615,6 +667,60 @@ paths:
               example:
                 code: 0
                 message: string
+  '/instrument/{idWallet}/initiatives':
+    get:
+      tags:
+        - wallet
+      summary: Returns the initiatives list associated to a payment instrument
+      operationId: getInitiativesWithInstrument
+      parameters:
+        - name: Accept-Language
+          in: header
+          schema:
+            type: string
+            example: it-IT
+            default: it-IT
+          required: true
+        - name: idWallet
+          in: path
+          description: The ID Wallet
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitiativesWithInstrumentDTO'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+              example:
+                code: 0
+                message: string
+        '429':
+          description: Too many Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+              example:
+                code: 0
+                message: string
+        '500':
+          description: Server ERROR
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+              example:
+                code: 0
+                message: string
 components:
   schemas:
     IbanPutDTO:
@@ -643,6 +749,7 @@ components:
             - REFUNDABLE
             - NOT_REFUNDABLE
             - UNSUBSCRIBED
+            - SUSPENDED
           type: string
           description: actual status of the citizen wallet for an initiative
     WalletDTO:
@@ -685,6 +792,8 @@ components:
         brandLogo:
           type: string
           description: Card's brand as mastercard, visa, ecc.
+        brand:
+          type: string
         status:
           enum:
             - ACTIVE
@@ -700,6 +809,8 @@ components:
         - endDate
         - nInstr
       properties:
+        familyId:
+          type: string
         initiativeId:
           type: string
         initiativeName:
@@ -711,6 +822,7 @@ components:
             - REFUNDABLE
             - NOT_REFUNDABLE
             - UNSUBSCRIBED
+            - SUSPENDED
           type: string
         endDate:
           type: string
@@ -726,6 +838,57 @@ components:
         nInstr:
           type: integer
           format: int32
+        initiativeRewardType:
+          enum:
+            - DISCOUNT
+            - REFUND
+          type: string
+        logoURL:
+          type: string
+        organizationName:
+          type: string
+        nTrx:
+          type: integer
+          format: int64
+    InitiativesWithInstrumentDTO:
+      type: object
+      required:
+        - idWallet
+        - maskedPan
+        - brand
+        - initiativeList
+      properties:
+        idWallet:
+          type: string
+        maskedPan:
+          type: string
+        brand:
+          type: string
+        initiativeList:
+          type: array
+          items:
+            $ref: '#/components/schemas/InitiativesStatusDTO'
+          description: The list of the payment instrument status with respect to the initiative
+    InitiativesStatusDTO:
+      type: object
+      required:
+        - initiativeId
+        - initiativeName
+        - status
+      properties:
+        initiativeId:
+          type: string
+        initiativeName:
+          type: string
+        idInstrument:
+          type: string
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - PENDING_ENROLLMENT_REQUEST
+            - PENDING_DEACTIVATION_REQUEST
     ErrorDTO:
       type: object
       required:
@@ -736,6 +899,93 @@ components:
           type: integer
           format: int32
         message:
+          type: string
+    InitiativeDetailDTO:
+      type: object
+      properties:
+        initiativeName:
+          type: string
+        status:
+          type: string
+        description:
+          type: string
+        ruleDescription:
+          type: string
+        endDate:
+          type: string
+          format: date
+        rankingStartDate:
+          type: string
+          format: date
+        rankingEndDate:
+          type: string
+          format: date
+        rewardRule:
+          $ref: '#/components/schemas/RewardValueDTO'
+        refundRule:
+          $ref: '#/components/schemas/InitiativeRefundRuleDTO'
+        privacyLink:
+          type: string
+        tcLink:
+          type: string
+        logoURL:
+          type: string
+        updateDate:
+          type: string
+          format: date-time
+        serviceId:
+          type: string
+    InitiativeRefundRuleDTO:
+      type: object
+      properties:
+        accumulatedAmount:
+          $ref: '#/components/schemas/AccumulatedAmountDTO'
+        timeParameter:
+          $ref: '#/components/schemas/TimeParameterDTO'
+    AccumulatedAmountDTO:
+      required:
+        - accumulatedType
+      type: object
+      properties:
+        accumulatedType:
+          type: string
+          enum:
+            - BUDGET_EXHAUSTED
+            - THRESHOLD_REACHED
+        refundThreshold:
+          type: number
+    TimeParameterDTO:
+      required:
+        - timeType
+      type: object
+      properties:
+        timeType:
+          type: string
+          enum:
+            - CLOSED
+            - DAILY
+            - WEEKLY
+            - MONTHLY
+            - QUARTERLY
+    RewardValueDTO:
+      required:
+        - rewardValueType
+        - rewardValue
+      type: object
+      properties:
+        rewardValueType:
+          type: string
+          enum:
+            - PERCENTAGE
+            - ABSOLUTE
+        rewardValue:
+          type: number
+    RefundAdditionalInfoDTO:
+      required:
+        - identificationCode
+      type: object
+      properties:
+        identificationCode:
           type: string
   securitySchemes:
     bearerAuth:

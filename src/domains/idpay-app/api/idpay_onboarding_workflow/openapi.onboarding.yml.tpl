@@ -10,7 +10,7 @@ paths:
     get:
       tags:
         - onboarding
-      summary: Retrieves the initiative ID starting from the corresponding service ID
+      summary: Retrieves the initiative ID and related information starting from the corresponding service ID
       operationId: getInitiativeData
       parameters:
         - name: serviceId
@@ -32,13 +32,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InitiativeDto'
+                $ref: '#/components/schemas/InitiativeDataDTO'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -47,7 +47,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -56,7 +56,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -65,7 +65,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -101,7 +101,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -110,16 +110,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
+        '403':
+          description: This onboarding is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrerequisitesErrorDTO'
+              example:
+                code: 0
+                message: string
+                details: GENERIC_ERROR
         '404':
           description: The requested ID was not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -128,7 +138,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -137,7 +147,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -180,7 +190,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -189,25 +199,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
         '403':
-          description: This enrolment is ended or suspended
+          description: This onboarding is forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/PrerequisitesErrorDTO'
               example:
                 code: 0
                 message: string
+                details: GENERIC_ERROR
         '404':
           description: The requested ID was not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -216,7 +227,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -225,7 +236,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -260,7 +271,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -269,16 +280,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
+        '403':
+          description: This onboarding is forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrerequisitesErrorDTO'
+              example:
+                code: 0
+                message: string
+                details: GENERIC_ERROR
         '404':
           description: The requested ID was not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -287,7 +308,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -296,7 +317,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -334,7 +355,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -343,7 +364,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -352,7 +373,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -361,7 +382,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: '#/components/schemas/ErrorDTO'
               example:
                 code: 0
                 message: string
@@ -410,10 +431,13 @@ components:
             - ACCEPTED_TC
             - ON_EVALUATION
             - ONBOARDING_KO
-            - ELIGIBILE_KO
+            - ELIGIBLE_KO
             - ONBOARDING_OK
             - UNSUBSCRIBED
             - INVITED
+            - DEMANDED
+            - ELIGIBLE
+            - SUSPENDED
           type: string
           description: actual status of the citizen onboarding for an initiative
     RequiredCriteriaDTO:
@@ -446,19 +470,39 @@ components:
       properties:
         code:
           type: string
+          enum:
+            - ISEE
+            - BIRTHDATE
+            - RESIDENCE
         description:
           type: string
         value:
           type: string
-          description: The expected value for the criteria. It is used in conjunction with the operator to define a range or an equality over that criteria.
+          description: >-
+            The expected value for the criteria. It is used in conjunction with
+            the operator to define a range or an equality over that criteria.
         value2:
           type: string
-          description: In situations where the operator expects two values (e.g BETWEEN) this field is populated
+          description: >-
+            In situations where the operator expects two values (e.g BETWEEN)
+            this field is populated
         operator:
           type: string
           description: Represents the relation between the criteria and the value field
+          enum:
+            - EQ
+            - NOT_EQ
+            - LT
+            - LE
+            - GT
+            - GE
+            - BTW_CLOSED
+            - BTW_OPEN
         authority:
           type: string
+          enum:
+            - INPS
+            - AGID
     SelfDeclarationBoolDTO:
       type: object
       required:
@@ -527,7 +571,7 @@ components:
           type: string
         value:
           type: string
-    ErrorDto:
+    ErrorDTO:
       type: object
       required:
         - code
@@ -538,14 +582,52 @@ components:
           format: int32
         message:
           type: string
-    InitiativeDto:
+    PrerequisitesErrorDTO:
+      type: object
+      required:
+        - code
+        - message
+        - details
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        details:
+          type: string
+          enum:
+            - INITIATIVE_NOT_STARTED
+            - INITIATIVE_END
+            - BUDGET_TERMINATED
+            - INITIATIVE_SUSPENDED
+            - GENERIC_ERROR
+    InitiativeDataDTO:
       type: object
       required:
         - initiativeId
+        - initiativeName
+        - description
+        - organizationId
+        - organizationName
+        - tcLink
+        - privacyLink
       properties:
         initiativeId:
           type: string
+        initiativeName:
+          type: string
         description:
+          type: string
+        organizationId:
+          type: string
+        organizationName:
+          type: string
+        tcLink:
+          type: string
+        privacyLink:
+          type: string
+        logoURL:
           type: string
   securitySchemes:
     bearerAuth:

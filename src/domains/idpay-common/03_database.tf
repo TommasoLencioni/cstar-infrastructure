@@ -15,29 +15,34 @@ resource "azurerm_key_vault_secret" "cosmosdb_account_mongodb_connection_strings
 
 module "cosmosdb_account_mongodb" {
 
-  source = "git::https://github.com/pagopa/azurerm.git//cosmosdb_account?ref=v2.15.1"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//cosmosdb_account?ref=v6.15.2"
 
   name                 = "${local.product}-${var.domain}-mongodb-account"
+  domain               = var.domain
   location             = azurerm_resource_group.data_rg.location
   resource_group_name  = azurerm_resource_group.data_rg.name
-  offer_type           = var.cosmos_mongo_db_params.offer_type
-  enable_free_tier     = var.cosmos_mongo_db_params.enable_free_tier
+  offer_type           = var.cosmos_mongo_account_params.offer_type
+  enable_free_tier     = var.cosmos_mongo_account_params.enable_free_tier
   kind                 = "MongoDB"
-  capabilities         = var.cosmos_mongo_db_params.capabilities
-  mongo_server_version = var.cosmos_mongo_db_params.server_version
+  capabilities         = var.cosmos_mongo_account_params.capabilities
+  mongo_server_version = var.cosmos_mongo_account_params.server_version
 
-  public_network_access_enabled     = var.cosmos_mongo_db_params.public_network_access_enabled
-  private_endpoint_enabled          = var.cosmos_mongo_db_params.private_endpoint_enabled
+  public_network_access_enabled     = var.cosmos_mongo_account_params.public_network_access_enabled
+  private_endpoint_enabled          = var.cosmos_mongo_account_params.private_endpoint_enabled
   subnet_id                         = data.azurerm_subnet.private_endpoint_snet.id
   private_dns_zone_ids              = [data.azurerm_private_dns_zone.cosmos_mongo.id]
-  is_virtual_network_filter_enabled = var.cosmos_mongo_db_params.is_virtual_network_filter_enabled
+  is_virtual_network_filter_enabled = var.cosmos_mongo_account_params.is_virtual_network_filter_enabled
 
-  consistency_policy               = var.cosmos_mongo_db_params.consistency_policy
+  allowed_virtual_network_subnet_ids = [
+    data.azurerm_subnet.aks_domain_subnet.id
+  ]
+
+  consistency_policy               = var.cosmos_mongo_account_params.consistency_policy
   main_geo_location_location       = azurerm_resource_group.data_rg.location
-  main_geo_location_zone_redundant = var.cosmos_mongo_db_params.main_geo_location_zone_redundant
-  additional_geo_locations         = var.cosmos_mongo_db_params.additional_geo_locations
+  main_geo_location_zone_redundant = var.cosmos_mongo_account_params.main_geo_location_zone_redundant
+  additional_geo_locations         = var.cosmos_mongo_account_params.additional_geo_locations
 
-  backup_continuous_enabled = var.cosmos_mongo_db_params.backup_continuous_enabled
+  backup_continuous_enabled = var.cosmos_mongo_account_params.backup_continuous_enabled
 
   tags = var.tags
 }
@@ -48,13 +53,19 @@ resource "azurerm_cosmosdb_mongo_database" "idpay" {
   resource_group_name = azurerm_resource_group.data_rg.name
   account_name        = module.cosmosdb_account_mongodb.name
 
-  throughput = var.cosmos_mongo_db_transaction_params.enable_autoscaling || var.cosmos_mongo_db_transaction_params.enable_serverless ? null : var.cosmos_mongo_db_transaction_params.throughput
+  throughput = var.cosmos_mongo_db_idpay_params.throughput
 
   dynamic "autoscale_settings" {
-    for_each = var.cosmos_mongo_db_transaction_params.enable_autoscaling && !var.cosmos_mongo_db_transaction_params.enable_serverless ? [""] : []
+    for_each = var.cosmos_mongo_db_idpay_params.max_throughput != null ? [""] : []
     content {
-      max_throughput = var.cosmos_mongo_db_transaction_params.max_throughput
+      max_throughput = var.cosmos_mongo_db_idpay_params.max_throughput
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      autoscale_settings
+    ]
   }
 }
 
@@ -68,11 +79,15 @@ locals {
         unique = true
         },
         {
-          keys   = ["initiativeId", "userId"]
-          unique = true
+          keys   = ["updateDate"]
+          unique = false
         },
         {
-          keys   = ["updateDate"]
+          keys   = ["initiativeId"]
+          unique = false
+        },
+        {
+          keys   = ["userId"]
           unique = false
         }
       ]
@@ -106,6 +121,10 @@ locals {
       indexes = [{
         keys   = ["_id"]
         unique = true
+        },
+        {
+          keys   = ["notificationStatus"]
+          unique = false
         }
       ]
     },
@@ -129,6 +148,10 @@ locals {
         },
         {
           keys   = ["initiativeId", "userId", "operationDate"]
+          unique = false
+        },
+        {
+          keys   = ["eventId"]
           unique = false
         }
       ]
@@ -157,6 +180,14 @@ locals {
         },
         {
           keys   = ["trxDate"]
+          unique = false
+        },
+        {
+          keys   = ["merchantId"]
+          unique = false
+        },
+        {
+          keys   = ["elaborationDateTime"]
           unique = false
         }
       ]
@@ -190,6 +221,14 @@ locals {
       indexes = [{
         keys   = ["_id"]
         unique = true
+        },
+        {
+          keys   = ["userId"]
+          unique = false
+        },
+        {
+          keys   = ["initiativeId"]
+          unique = false
         }
       ]
     },
@@ -293,7 +332,7 @@ locals {
         unique = true
         },
         {
-          keys   = ["userId"]
+          keys   = ["beneficiaryId"]
           unique = false
         },
         {
@@ -310,6 +349,14 @@ locals {
         },
         {
           keys   = ["notificationDate"]
+          unique = false
+        },
+        {
+          keys   = ["status"]
+          unique = false
+        },
+        {
+          keys   = ["cro"]
           unique = false
         }
       ]
@@ -330,6 +377,14 @@ locals {
         },
         {
           keys   = ["notificationDate"]
+          unique = false
+        },
+        {
+          keys   = ["exportDate"]
+          unique = false
+        },
+        {
+          keys   = ["status"]
           unique = false
         }
       ]
@@ -372,6 +427,12 @@ locals {
           keys   = ["initiativeId", "rankingValue", "criteriaConsensusTimestamp"]
           unique = false
         },
+        # descending order not supported, index manually created
+        # https://pagopa.atlassian.net/browse/IDP-661
+        #        {
+        #          keys   = ["initiativeId", "rankingValue:-1", "criteriaConsensusTimestamp"]
+        #          unique = false
+        #        },
         {
           keys   = ["initiativeId", "rank"]
           unique = false
@@ -398,11 +459,126 @@ locals {
         },
       ]
     },
+    {
+      name = "group_user_whitelist"
+      indexes = [{
+        keys   = ["_id"]
+        unique = true
+        },
+        {
+          keys   = ["groupId"]
+          unique = false
+        },
+        {
+          keys   = ["initiativeId"]
+          unique = false
+        },
+      ]
+    },
+    {
+      name = "custom_sequence"
+      indexes = [{
+        keys   = ["_id"]
+        unique = true
+      }]
+    },
+    {
+      name = "rewards_suspended_users"
+      indexes = [{
+        keys   = ["_id"]
+        unique = true
+      }]
+    },
+    {
+      name = "transaction_in_progress"
+      indexes = [{
+        keys   = ["_id"]
+        unique = true
+        }, {
+        keys   = ["trxCode"]
+        unique = false
+        }, {
+        keys   = ["trxChargeDate"]
+        unique = false
+        }, {
+        keys   = ["updateDate"]
+        unique = false
+        }, {
+        keys   = ["merchantId"]
+        unique = false
+        }, {
+        keys   = ["status"]
+        unique = false
+        }
+      ]
+    },
+    {
+      name = "onboarding_families"
+      indexes = [{
+        keys   = ["_id"]
+        unique = true
+        }, {
+        keys   = ["memberIds"]
+        unique = false
+        }
+      ]
+    },
+    {
+      name = "mocked_families"
+      indexes = [{
+        keys   = ["_id"]
+        unique = true
+        }, {
+        keys   = ["memberIds"]
+        unique = false
+        }
+      ]
+    },
+    {
+      name = "mocked_isee"
+      indexes = [{
+        keys   = ["_id"]
+        unique = true
+        }
+      ]
+    },
+    {
+      name = "merchant_file"
+      indexes = [{
+        keys   = ["_id"]
+        unique = true
+        },
+        {
+          keys   = ["fileName", "initiativeId"]
+          unique = true
+        }
+      ]
+    },
+    {
+      name = "merchant"
+      indexes = [{
+        keys   = ["_id"]
+        unique = true
+        },
+        {
+          keys   = ["fiscalCode", "acquirerId"]
+          unique = true
+        }
+      ]
+    },
+    {
+      name = "merchant_initiative_counters"
+      indexes = [{
+        keys   = ["_id"]
+        unique = true
+        }
+      ]
+    }
   ]
 }
 
 module "mongdb_collections" {
-  source = "git::https://github.com/pagopa/azurerm.git//cosmosdb_mongodb_collection?ref=v3.2.4"
+  source = "git::https://github.com/pagopa/terraform-azurerm-v3.git//cosmosdb_mongodb_collection?ref=v6.15.2"
 
   for_each = {
     for index, coll in local.collections :

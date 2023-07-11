@@ -25,6 +25,8 @@ log_analytics_workspace_resource_group_name = "cstar-p-monitor-rg"
 
 aks_name                = "cstar-p-weu-prod01-aks"
 aks_resource_group_name = "cstar-p-weu-prod01-aks-rg"
+aks_vmss_name           = "aks-cstprod01usr-18685956-vmss"
+aks_cluster_domain_name = "prod01"
 
 ingress_load_balancer_ip       = "10.11.100.250"
 ingress_load_balancer_hostname = "prod01.idpay.internal.cstar.pagopa.it"
@@ -45,19 +47,11 @@ enable = {
   }
 }
 
-# Enrolled payment instrument event hub
-eventhub_pim = {
-  enrolled_pi_eventhub  = "rtd-enrolled-pi"
-  revoked_pi_eventhub   = "rtd-revoked-pi"
-  namespace_enrolled_pi = "cstar-p-evh-ns"
-  namespace_revoked_pi  = "cstar-p-evh-ns-fa-01"
-  resource_group_name   = "cstar-p-msg-rg"
-}
-
 #
 # PDV
 #
 pdv_tokenizer_url = "https://api.tokenizer.pdv.pagopa.it/tokenizer/v1"
+pdv_timeout_sec   = 5
 
 #
 # PM
@@ -75,6 +69,15 @@ checkiban_base_url = "https://bankingservices.pagopa.it"
 #
 selc_base_url = "https://api.selfcare.pagopa.it"
 
+#
+# BE IO API
+#
+io_backend_base_url = "https://api-io.cstar.pagopa.it/idpay/mock" # "https://api.io.italia.it"
+
+#
+# ONE TRUST API
+#
+one_trust_privacynotice_base_url = "https://app-de.onetrust.com/api/privacynotice/v2"
 
 #
 # TLS Checker
@@ -88,10 +91,11 @@ tls_cert_check_helm = {
 }
 
 # Storage
-storage_account_replication_type   = "RAGZRS"
-storage_delete_retention_days      = 90
-storage_enable_versioning          = true
-storage_advanced_threat_protection = true
+storage_account_replication_type      = "RAGZRS"
+storage_delete_retention_days         = 90
+storage_enable_versioning             = true
+storage_advanced_threat_protection    = true
+storage_public_network_access_enabled = true
 
 #
 # RTD reverse proxy
@@ -101,4 +105,5 @@ reverse_proxy_rtd = "10.1.0.250"
 #
 # SMTP Server
 #
-mail_server_host = "smtp.google.com"
+mail_server_host    = "smtp.google.com"
+idpay_alert_enabled = true

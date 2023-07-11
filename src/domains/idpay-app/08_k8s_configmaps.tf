@@ -77,23 +77,27 @@ resource "kubernetes_config_map" "rest-client" {
   }
 
   data = {
-    rest_client_schema            = "http"
-    idpay_onboarding_host         = "http://idpay-onboarding-workflow-microservice-chart:8080"
-    idpay_payment_instrument_host = "http://idpay-payment-instrument-microservice-chart:8080"
-    idpay_group_host              = "http://idpay-group-microservice-chart:8080"
-    idpay_ranking_host            = "http://idpay-ranking-microservice-chart:8080"
-    idpay_wallet_host             = "http://idpay-wallet-microservice-chart:8080"
-    initiative_ms_base_url        = "http://idpay-portal-welfare-backend-initiative-microservice-chart:8080"
-    email_notification_ms_host    = "http://idpay-notification-email-microservice-chart:8080"
-    checkiban_base_url            = var.checkiban_base_url
-    checkiban_url                 = "/api/pagopa/banking/v4.0/utils/validate-account-holder"
-    pdv_decrypt_base_url          = var.pdv_tokenizer_url
-    io_backend_base_url           = "https://api.io.italia.it"
-    io_backend_message_url        = "/api/v1/messages"
-    io_backend_profile_url        = "/api/v1/profiles"
-    io_backend_service_url        = "/api/v1/services"
-    pm_service_base_url           = var.pm_service_base_url
-    selc_base_url                 = var.selc_base_url
+    rest_client_schema               = "http"
+    idpay_onboarding_host            = "http://idpay-onboarding-workflow-microservice-chart:8080"
+    idpay_payment_instrument_host    = "http://idpay-payment-instrument-microservice-chart:8080"
+    idpay_group_host                 = "http://idpay-group-microservice-chart:8080"
+    idpay_ranking_host               = "http://idpay-ranking-microservice-chart:8080"
+    idpay_wallet_host                = "http://idpay-wallet-microservice-chart:8080"
+    initiative_ms_base_url           = "http://idpay-portal-welfare-backend-initiative-microservice-chart:8080"
+    email_notification_ms_host       = "http://idpay-notification-email-microservice-chart:8080"
+    idpay-reward-calculator-baseurl  = "http://idpay-reward-calculator-microservice-chart:8080"
+    admissibility_ms_base_url        = "http://idpay-admissibility-assessor-microservice-chart:8080"
+    idpay_merchant_host              = "http://idpay-merchant-microservice-chart:8080"
+    checkiban_base_url               = var.checkiban_base_url
+    checkiban_url                    = "/api/pagopa/banking/v4.0/utils/validate-account-holder"
+    pdv_decrypt_base_url             = var.pdv_tokenizer_url
+    io_backend_base_url              = var.io_backend_base_url
+    one_trust_privacynotice_base_url = var.one_trust_privacynotice_base_url
+    io_backend_message_url           = "/api/v1/messages"
+    io_backend_profile_url           = "/api/v1/profiles"
+    io_backend_service_url           = "/api/v1/services"
+    pm_service_base_url              = var.pm_service_base_url
+    selc_base_url                    = var.selc_base_url
   }
 
 }
@@ -109,7 +113,7 @@ resource "kubernetes_config_map" "rtd-eventhub" {
     kafka_broker_rtd_pi            = "${local.product}-rtd-evh-ns.servicebus.windows.net:${var.event_hub_port}"
     rtd_pi_from_app_topic          = "rtd-pi-from-app"
     rtd_trx_topic                  = "rtd-trx"
-    kafka_partition_count          = data.azurerm_eventhub.enrolled_pi_hub.partition_count
+    kafka_partition_count          = 1
     kafka_partition_key_expression = "headers.partitionKey"
     rtd_pi_to_app_topic            = "rtd-pi-to-app"
     rtd_pi_to_app_consumer_group   = "rtd-pi-to-app-consumer-group"
@@ -127,5 +131,16 @@ resource "kubernetes_config_map" "notification-email" {
   data = {
     mail_server_host = var.mail_server_host
     mail_server_port = var.mail_server_port
+  }
+}
+
+resource "kubernetes_config_map" "appinsights-config" {
+  metadata {
+    name      = "appinsights-config"
+    namespace = var.domain
+  }
+
+  data = {
+    "applicationinsights.json" = file("./k8s-file/appinsights-config/applicationinsights.json")
   }
 }
