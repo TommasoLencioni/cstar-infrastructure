@@ -524,6 +524,10 @@ locals {
           keys   = ["rankingEndDate"]
           unique = false
         },
+        {
+          keys   = ["rankingStatus"]
+          unique = false
+        }
       ]
     },
     {
