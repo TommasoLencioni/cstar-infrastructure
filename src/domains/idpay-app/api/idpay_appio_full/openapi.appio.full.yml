@@ -1710,7 +1710,7 @@ paths:
               example:
                 code: 0
                 message: string
-  '/wallet/{initiativeId}/enroll-idpay-code':
+  '/wallet/{initiativeId}/{cardNumber}':
     put:
       tags:
         - wallet
@@ -1729,6 +1729,12 @@ paths:
         - name: initiativeId
           in: path
           description: 'ENG: The initiative ID - IT: Identificativo dell''iniziativa'
+          required: true
+          schema:
+            type: string
+        - name: cardNumber
+          in: path
+          description: 'ENG: The document number - IT: Il numero del documento'
           required: true
           schema:
             type: string
