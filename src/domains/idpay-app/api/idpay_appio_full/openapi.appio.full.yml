@@ -1603,12 +1603,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TransactionErrorDTO'
-  '/wallet/check-enrollment':
+  '/wallet/idpay-code-status':
     get:
       tags:
         - wallet
-      summary: 'ENG: Check if the idpay Code is enrolled - IT: Verifica se è enrollato idpay Code'
-      operationId: getEnrollmentStatus
+      summary: 'ENG: Check if the PIN already exists - IT: Verifica se è già stato generato un PIN'
+      operationId: getIdpayCodeStatus
       responses:
         '200':
           description: Check successful
@@ -1732,13 +1732,6 @@ paths:
           required: true
           schema:
             type: string
-      requestBody:
-        description: 'ENG: PIN - IT: PIN'
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EnrollmentPutDTO'
       responses:
         '200':
           description: Enrollment OK
@@ -1820,14 +1813,6 @@ components:
         pin:
           type: string
           description: 'ENG: Numeric PIN - IT: PIN numerico'
-    EnrollmentPutDTO:
-      title: EnrollmentPutDTO
-      type: object
-      required:
-        - pin
-      properties:
-        pin:
-          type: string
     IbanDTO:
       type: object
       required:
