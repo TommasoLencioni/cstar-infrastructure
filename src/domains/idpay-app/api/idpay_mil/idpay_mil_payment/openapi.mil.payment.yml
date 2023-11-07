@@ -234,7 +234,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: x-merchant-fiscalcode
+        - name: x-merchant-id
           in: header
           description: Merchant fiscal code
           required: true
@@ -316,10 +316,12 @@ components:
         - trxCode
         - initiativeId
         - merchantId
+        - idTrxIssuer
         - idTrxAcquirer
         - trxDate
         - amountCents
         - amountCurrency
+        - mcc
         - acquirerId
         - status
       properties:
@@ -364,9 +366,9 @@ components:
         residualAmountCents:
           type: integer
           format: int64
-        trxPngUrl:
+        qrcodePngUrl:
           type: string
-        trxTxtUrl:
+        qrcodeTxtUrl:
           type: string
     SyncTrxStatus:
       type: object
@@ -378,9 +380,11 @@ components:
         - operationType
         - amountCents
         - amountCurrency
+        - mcc
         - acquirerId
         - merchantId
         - initiativeId
+        - rejectionReasons
         - status
       properties:
         id:
@@ -422,6 +426,10 @@ components:
         status:
           type: string
           enum: [CREATED, IDENTIFIED, AUTHORIZED, REWARDED, REJECTED]
+        qrcodePngUrl:
+          type: string
+        qrcodeTxtUrl:
+          type: string
     ErrorDTO:
       type: object
       properties:
