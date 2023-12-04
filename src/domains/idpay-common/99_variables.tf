@@ -184,7 +184,7 @@ variable "eventhubs_idpay_00" {
     partitions        = number
     message_retention = number
     consumers         = list(string)
-    keys = list(object({
+    policies = list(object({
       name   = string
       listen = bool
       send   = bool
@@ -201,7 +201,7 @@ variable "eventhubs_idpay_01" {
     partitions        = number
     message_retention = number
     consumers         = list(string)
-    keys = list(object({
+    policies = list(object({
       name   = string
       listen = bool
       send   = bool

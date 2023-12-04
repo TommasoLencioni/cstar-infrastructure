@@ -90,7 +90,7 @@ eventhubs_idpay_00 = [
       "idpay-onboarding-outcome-consumer-group",
       "idpay-initiative-onboarding-statistics-group"
     ]
-    keys = [
+    policies = [
       {
         name   = "idpay-onboarding-outcome-producer"
         listen = false
@@ -110,7 +110,7 @@ eventhubs_idpay_00 = [
     partitions        = 3
     message_retention = 1
     consumers         = ["idpay-onboarding-notification-consumer-group"]
-    keys = [
+    policies = [
       {
         name   = "idpay-onboarding-notification-producer"
         listen = false
@@ -133,7 +133,7 @@ eventhubs_idpay_00 = [
       "idpay-checkiban-evaluation-consumer-group",
       "idpay-rewards-notification-checkiban-req-group"
     ]
-    keys = [
+    policies = [
       {
         name   = "idpay-checkiban-evaluation-producer"
         listen = false
@@ -156,7 +156,7 @@ eventhubs_idpay_00 = [
       "idpay-checkiban-outcome-consumer-group",
       "idpay-rewards-notification-checkiban-out-group"
     ]
-    keys = [
+    policies = [
       {
         name   = "idpay-checkiban-outcome-producer"
         listen = false
@@ -176,7 +176,7 @@ eventhubs_idpay_00 = [
     partitions        = 3
     message_retention = 1
     consumers         = ["idpay-timeline-consumer-group"]
-    keys = [
+    policies = [
       {
         name   = "idpay-timeline-producer"
         listen = false
@@ -196,7 +196,7 @@ eventhubs_idpay_00 = [
     partitions        = 3
     message_retention = 1
     consumers         = ["idpay-notification-request-group"]
-    keys = [
+    policies = [
       {
         name   = "idpay-notification-request-producer"
         listen = false
@@ -216,7 +216,7 @@ eventhubs_idpay_00 = [
     partitions        = 3
     message_retention = 1
     consumers         = ["idpay-onboarding-ranking-request-consumer-group"]
-    keys = [
+    policies = [
       {
         name   = "idpay-onboarding-ranking-request-producer"
         listen = false
@@ -245,7 +245,7 @@ eventhubs_idpay_01 = [
       "idpay-rewards-notification-transaction-group",
       "idpay-initiative-rewards-statistics-group"
     ]
-    keys = [
+    policies = [
       {
         name   = "idpay-transaction-producer"
         listen = false
@@ -269,7 +269,7 @@ eventhubs_idpay_01 = [
       "idpay-reward-calculator-rule-consumer-group",
       "idpay-rewards-notification-rule-consumer-group"
     ]
-    keys = [
+    policies = [
       {
         name   = "idpay-rule-update-producer"
         listen = false
@@ -289,7 +289,7 @@ eventhubs_idpay_01 = [
     partitions        = 3
     message_retention = 1
     consumers         = ["idpay-reward-calculator-hpan-update-consumer-group"]
-    keys = [
+    policies = [
       {
         name   = "idpay-hpan-update-producer"
         listen = false
@@ -309,7 +309,7 @@ eventhubs_idpay_01 = [
     partitions        = 3
     message_retention = 1
     consumers         = ["idpay-hpan-update-outcome-consumer-group"]
-    keys = [
+    policies = [
       {
         name   = "idpay-hpan-update-outcome-producer"
         listen = false
@@ -329,7 +329,7 @@ eventhubs_idpay_01 = [
     partitions        = 3
     message_retention = 1
     consumers         = ["idpay-reward-calculator-consumer-group"]
-    keys = [
+    policies = [
       {
         name   = "idpay-transaction-user-id-splitter-producer"
         listen = false
@@ -349,7 +349,7 @@ eventhubs_idpay_01 = [
     partitions        = 3
     message_retention = 1
     consumers         = ["idpay-errors-recovery-group"]
-    keys = [
+    policies = [
       {
         name   = "idpay-errors-producer"
         listen = false
@@ -369,7 +369,7 @@ eventhubs_idpay_01 = [
     partitions        = 3
     message_retention = 1
     consumers         = ["idpay-reward-notification-storage-group"]
-    keys = [
+    policies = [
       {
         name   = "idpay-reward-notification-storage-producer"
         listen = false
@@ -389,7 +389,7 @@ eventhubs_idpay_01 = [
     partitions        = 3
     message_retention = 1
     consumers         = ["idpay-reward-notification-response-group"]
-    keys = [
+    policies = [
       {
         name   = "idpay-reward-notification-response-producer"
         listen = false
@@ -409,7 +409,7 @@ eventhubs_idpay_01 = [
     partitions        = 3
     message_retention = 1
     consumers         = ["idpay-commands-wallet-consumer-group", "idpay-commands-group-consumer-group", "idpay-commands-notification-consumer-group", "idpay-commands-ranking-consumer-group", "idpay-commands-admissibility-consumer-group", "idpay-commands-reward-calculator-consumer-group", "idpay-commands-reward-notification-consumer-group", "idpay-commands-timeline-consumer-group", "idpay-commands-onboarding-consumer-group", "idpay-commands-payment-instrument-consumer-group", "idpay-commands-statistics-consumer-group", "idpay-commands-merchant-consumer-group", "idpay-commands-payment-consumer-group", "idpay-commands-transaction-consumer-group", "idpay-commands-iban-consumer-group", "idpay-commands-initiative-consumer-group"]
-    keys = [
+    policies = [
       {
         name   = "idpay-commands-producer"
         listen = false
