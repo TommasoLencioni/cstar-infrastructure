@@ -181,9 +181,9 @@ resource "azurerm_eventhub" "event_hub_idpay_00_hubs" {
   name                = each.value.name
   partition_count     = each.value.partitions
   message_retention   = each.value.message_retention
-  namespace_name      = azurerm_eventhub_namespace.event_hub_idpay_namespace_00
+  namespace_name      = azurerm_eventhub_namespace.event_hub_idpay_namespace_00[0].name
   resource_group_name = azurerm_resource_group.msg_rg.name
-  depends_on          = [azurerm_eventhub_namespace.event_hub_idpay_namespace_00]
+  depends_on          = [azurerm_eventhub_namespace.event_hub_idpay_namespace_00[0]]
 }
 
 resource "azurerm_eventhub" "event_hub_idpay_01_hubs" {
@@ -191,9 +191,9 @@ resource "azurerm_eventhub" "event_hub_idpay_01_hubs" {
   name                = each.value.name
   partition_count     = each.value.partitions
   message_retention   = each.value.message_retention
-  namespace_name      = azurerm_eventhub_namespace.event_hub_idpay_namespace_01
+  namespace_name      = azurerm_eventhub_namespace.event_hub_idpay_namespace_01[0].name
   resource_group_name = azurerm_resource_group.msg_rg.name
-  depends_on          = [azurerm_eventhub_namespace.event_hub_idpay_namespace_01]
+  depends_on          = [azurerm_eventhub_namespace.event_hub_idpay_namespace_01[0]]
 }
 
 #
@@ -204,9 +204,9 @@ resource "azurerm_eventhub_consumer_group" "event_hub_idpay_00_consumer_group" {
 
   eventhub_name       = each.value.eventhub_name
   name                = each.value.name
-  namespace_name      = azurerm_eventhub_namespace.event_hub_idpay_namespace_00
+  namespace_name      = azurerm_eventhub_namespace.event_hub_idpay_namespace_00[0].name
   resource_group_name = azurerm_resource_group.msg_rg.name
-  depends_on          = [azurerm_eventhub_namespace.event_hub_idpay_namespace_00]
+  depends_on          = [azurerm_eventhub_namespace.event_hub_idpay_namespace_00[0]]
 }
 
 resource "azurerm_eventhub_consumer_group" "event_hub_idpay_01_consumer_group" {
@@ -214,38 +214,38 @@ resource "azurerm_eventhub_consumer_group" "event_hub_idpay_01_consumer_group" {
 
   eventhub_name       = each.value.eventhub_name
   name                = each.value.name
-  namespace_name      = azurerm_eventhub_namespace.event_hub_idpay_namespace_01
+  namespace_name      = azurerm_eventhub_namespace.event_hub_idpay_namespace_01[0].name
   resource_group_name = azurerm_resource_group.msg_rg.name
-  depends_on          = [azurerm_eventhub_namespace.event_hub_idpay_namespace_01]
+  depends_on          = [azurerm_eventhub_namespace.event_hub_idpay_namespace_01[0]]
 }
 
 #
 # Eventhub policies
 #
 resource "azurerm_eventhub_authorization_rule" "event_hub_idpay_00_policy" {
-  for_each = merge([for hub in var.eventhubs_idpay_00 : { for policy in hub.policies : policy.name => policy }]...)
+  for_each = merge([for hub in var.eventhubs_idpay_00 : { for policy in hub.policies : policy.name => { hub_name = hub.name, policy = policy } }]...)
 
-  name                = each.value.name
+  name                = each.value.policy.name
   eventhub_name       = each.value.hub_name
-  namespace_name      = azurerm_eventhub_namespace.event_hub_idpay_namespace_00
+  namespace_name      = azurerm_eventhub_namespace.event_hub_idpay_namespace_00[0].name
   resource_group_name = azurerm_resource_group.msg_rg.name
-  listen              = each.value.listen
-  send                = each.value.send
-  manage              = each.value.manage
-  depends_on          = [azurerm_eventhub_namespace.event_hub_idpay_namespace_00]
+  listen              = each.value.policy.listen
+  send                = each.value.policy.send
+  manage              = each.value.policy.manage
+  depends_on          = [azurerm_eventhub_namespace.event_hub_idpay_namespace_00[0]]
 }
 
 resource "azurerm_eventhub_authorization_rule" "event_hub_idpay_01_policy" {
-  for_each = merge([for hub in var.eventhubs_idpay_01 : { for policy in hub.policies : policy.name => policy }]...)
+  for_each = merge([for hub in var.eventhubs_idpay_01 : { for policy in hub.policies : policy.name => { hub_name = hub.name, policy = policy } }]...)
 
-  name                = each.value.name
+  name                = each.value.policy.name
   eventhub_name       = each.value.hub_name
-  namespace_name      = azurerm_eventhub_namespace.event_hub_idpay_namespace_01
+  namespace_name      = azurerm_eventhub_namespace.event_hub_idpay_namespace_01[0].name
   resource_group_name = azurerm_resource_group.msg_rg.name
-  listen              = each.value.listen
-  send                = each.value.send
-  manage              = each.value.manage
-  depends_on          = [azurerm_eventhub_namespace.event_hub_idpay_namespace_01]
+  listen              = each.value.policy.listen
+  send                = each.value.policy.send
+  manage              = each.value.policy.manage
+  depends_on          = [azurerm_eventhub_namespace.event_hub_idpay_namespace_01[0]]
 }
 
 resource "azurerm_key_vault_secret" "event_hub_keys_idpay_00" {
